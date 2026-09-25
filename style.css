@@ -111,6 +111,27 @@ button {
   box-shadow: 0 0 10px #ff3545;
 }
 
+body.stream-error .signal-mark {
+  width: 13px;
+  height: 13px;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+body.stream-error .signal-mark::before {
+  content: "✕";
+  display: block;
+  color: #ff7880;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 13px;
+}
+
+body.stream-error .eyebrow {
+  color: #ffadb3;
+}
+
 .status {
   position: absolute;
   width: 1px;
