@@ -312,7 +312,9 @@ function initCast() {
     function refreshCastControl() {
       const state = castContext.getCastState();
       const available =
-        state !== cast.framework.CastState.NO_DEVICES_AVAILABLE;
+        state === cast.framework.CastState.NOT_CONNECTED ||
+        state === cast.framework.CastState.CONNECTING ||
+        state === cast.framework.CastState.CONNECTED;
 
       showCastControl(available);
     }
