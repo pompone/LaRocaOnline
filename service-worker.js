@@ -1,4 +1,4 @@
-const CACHE_NAME = "la-roca-v6";
+const CACHE_NAME = "la-roca-v7";
 
 const ASSETS = [
   "./",
@@ -55,8 +55,8 @@ self.addEventListener("fetch", (event) => {
   if (isPageOrCode) {
     /* Consultar primero al servidor evita quedar en una versión vieja. */
     event.respondWith(
-      fetch(request).catch(async () => {
-        const cached = await caches.match(request);
+      fetch(request, { cache: "no-store" }).catch(async () => {
+        const cached = await caches.match(request, { ignoreSearch: true });
         if (cached) return cached;
         throw new Error("Sin conexión y sin copia guardada");
       })
