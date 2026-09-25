@@ -46,8 +46,12 @@ function getCastSession() {
 }
 
 function showCastControl(available) {
-  castButton.classList.toggle("hidden", !available);
-  castFallbackBtn.classList.toggle("hidden", available);
+  // Usamos un botón propio: el launcher nativo puede ocultarse por su cuenta.
+  castButton.classList.add("hidden");
+  castFallbackBtn.classList.remove("hidden");
+  castFallbackBtn.title = available
+    ? "Elegir dispositivo Chromecast"
+    : "Comprobar disponibilidad de Chromecast";
 }
 
 async function playLocal() {
@@ -280,16 +284,29 @@ audio.addEventListener("error", () => {
 });
 
 castFallbackBtn.addEventListener("click", () => {
-  if (!castReady) {
+  if (!castReady) initCast();
+
+  if (!castReady || !castContext) {
     alert(
-      "Chromecast no está disponible en este navegador o no se pudo cargar su API. Probá la versión publicada por HTTPS en Chrome o Edge."
+      "Chromecast no está disponible en este navegador o no se pudo cargar su API. Probá con Chrome o Edge desde la página HTTPS."
     );
     return;
   }
 
-  alert(
-    "No se detecta un dispositivo Chromecast. Comprobá que la computadora y el dispositivo estén en la misma red Wi-Fi."
-  );
+  if (castContext.getCastState() === cast.framework.CastState.NO_DEVICES_AVAILABLE) {
+    alert(
+      "No se detecta un Chromecast. Comprobá que la computadora y el dispositivo estén en la misma red Wi-Fi."
+    );
+    return;
+  }
+
+  // Se llama directamente desde el clic para conservar la acción del usuario.
+  castContext.requestSession().catch((error) => {
+    if (error !== chrome.cast.ErrorCode.CANCEL) {
+      console.error("No se pudo iniciar Cast:", error);
+      alert("No se pudo conectar con Chromecast. Revisá la red y volvé a intentar.");
+    }
+  });
 });
 
 function initCast() {
