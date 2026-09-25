@@ -15,6 +15,8 @@ const castButton = document.getElementById("castButton");
 const castFallbackBtn = document.getElementById("castFallbackBtn");
 const liveDot = document.getElementById("liveDot");
 const liveLabel = document.getElementById("liveLabel");
+const signalText = document.getElementById("signalText");
+let bufferingTimer = null;
 
 let poweredOn = false;
 let castReady = false;
@@ -29,6 +31,10 @@ function setStatus(message) {
 }
 
 function setPlayingUI(isPlaying, message) {
+  clearTimeout(bufferingTimer);
+  bufferingTimer = null;
+  document.body.classList.remove("stream-error");
+  signalText.textContent = "TRANSMITIENDO DESDE LA ROCA ONLINE";
   document.body.classList.toggle("playing", isPlaying);
   playIcon.textContent = isPlaying ? "❚❚" : "▶";
   playBtn.setAttribute(
@@ -39,6 +45,29 @@ function setPlayingUI(isPlaying, message) {
   liveLabel.textContent = isPlaying ? "EN VIVO" : "DETENIDA";
 
   if (message) setStatus(message);
+}
+
+function setStreamError() {
+  if (!poweredOn || getCastSession()) return;
+  setPlayingUI(false, "Error en la transmisión");
+  document.body.classList.add("stream-error");
+  signalText.textContent = "ERROR EN LA TRANSMISIÓN";
+  liveLabel.textContent = "SIN SEÑAL";
+}
+
+function setBuffering() {
+  if (!poweredOn || getCastSession() || audio.paused) return;
+  document.body.classList.remove("playing", "stream-error");
+  signalText.textContent = "CONECTANDO...";
+  liveDot.classList.add("off");
+  liveLabel.textContent = "CONECTANDO";
+  setStatus("Conectando...");
+  clearTimeout(bufferingTimer);
+  bufferingTimer = setTimeout(() => {
+    if (poweredOn && !getCastSession() && !audio.paused && audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+      setStreamError();
+    }
+  }, 8000);
 }
 
 function getCastSession() {
@@ -69,10 +98,7 @@ async function playLocal() {
   } catch (error) {
     console.error("Error al reproducir:", error);
     if (poweredOn) {
-      setPlayingUI(
-        false,
-        `No se pudo reproducir (${error.name || "error"})`
-      );
+      setStreamError();
     }
   }
 }
@@ -265,21 +291,14 @@ audio.addEventListener("playing", () => {
   }
 });
 
-audio.addEventListener("waiting", () => {
-  if (!getCastSession() && poweredOn) {
-    setStatus("Conectando...");
-  }
-});
+audio.addEventListener("waiting", setBuffering);
+audio.addEventListener("stalled", setBuffering);
 
 audio.addEventListener("error", () => {
   console.error("MediaError:", audio.error);
 
   if (!getCastSession() && poweredOn) {
-    const code = audio.error?.code || "?";
-    setPlayingUI(
-      false,
-      `Error al cargar el stream (código ${code})`
-    );
+    setStreamError();
   }
 });
 
