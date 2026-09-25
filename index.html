@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#24477e" />
+  <meta name="description" content="Escuchá La Roca Online en vivo." />
+
+  <title>La Roca Online</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icons/favicon.ico" sizes="any" />
+  <link rel="icon" href="./icons/favicon-48.png" type="image/png" sizes="48x48" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body class="power-off">
+  <main class="app-shell">
+    <section class="radio-card" aria-label="Reproductor de La Roca Online">
+      <div class="radio-top">
+        <div class="station-heading">
+          <img
+            class="header-logo"
+            src="./icons/logo-la-roca.png"
+            alt="La Roca Online"
+          />
+
+          <div class="station-copy">
+            <p class="eyebrow">
+              <span class="signal-mark"></span>
+              TRANSMITIENDO DESDE LA ROCA
+            </p>
+            <p id="statusText" class="status" role="status">Radio apagada</p>
+          </div>
+        </div>
+
+        <button
+          id="powerBtn"
+          class="icon-btn power"
+          type="button"
+          aria-label="Encender o apagar"
+          aria-pressed="false"
+          title="Encender o apagar la radio"
+        >
+          <svg class="power-symbol" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2.5v9" />
+            <path d="M7.4 5.5a9 9 0 1 0 9.2 0" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="display">
+        <div class="display-glow"></div>
+
+        <div class="sound-rays sound-rays-left" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </div>
+
+        <div class="sound-rays sound-rays-right" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </div>
+
+        <div class="speaker speaker-left" aria-hidden="true">
+          <div class="speaker-ring">
+            <div class="speaker-cone">
+              <div class="speaker-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="speaker speaker-right" aria-hidden="true">
+          <div class="speaker-ring">
+            <div class="speaker-cone">
+              <div class="speaker-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="equalizer" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+
+        <div class="now-playing">
+          <div class="live-row">
+            <span id="liveDot" class="live-dot off"></span>
+            <span id="liveLabel">DETENIDA</span>
+          </div>
+
+          <div class="marquee">
+            <div class="marquee-track">
+              <span>
+                La Roca Online • Ministerio Roca a las Naciones •
+                Ing. Huergo, Patagonia 719
+              </span>
+              <span aria-hidden="true">
+                La Roca Online • Ministerio Roca a las Naciones •
+                Ing. Huergo, Patagonia 719
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="main-controls">
+        <button
+          id="muteBtn"
+          class="round-control"
+          type="button"
+          aria-label="Silenciar"
+          title="Silenciar o activar el sonido"
+        >
+          <span id="muteIcon">🔊</span>
+        </button>
+
+        <button
+          id="playBtn"
+          class="play-control"
+          type="button"
+          aria-label="Reproducir"
+          title="Tocá Play y escuchá en vivo"
+        >
+          <span id="playIcon">▶</span>
+        </button>
+
+        <div class="cast-slot">
+          <button
+            id="castFallbackBtn"
+            class="round-control cast-fallback"
+            type="button"
+            aria-label="Información sobre Chromecast"
+            title="Comprobar disponibilidad de Chromecast"
+          >
+            <span aria-hidden="true">▣</span>
+          </button>
+
+          <google-cast-launcher
+            id="castButton"
+            class="cast-button hidden"
+            title="Transmitir a Chromecast"
+          ></google-cast-launcher>
+        </div>
+      </div>
+
+      <div
+        class="volume-panel"
+        title="Usá la barra o la rueda del mouse para ajustar el volumen"
+      >
+        <div class="volume-copy">
+          <strong id="volumeValue">70%</strong>
+        </div>
+
+        <input
+          id="volumeSlider"
+          type="range"
+          min="0"
+          max="100"
+          value="70"
+          aria-label="Volumen"
+        />
+      </div>
+
+      <footer class="ministry-footer">
+        <img
+          src="./icons/ministerio.png"
+          alt="Logo del Ministerio Roca a las Naciones"
+        />
+        <span>Ministerio Roca a las Naciones</span>
+      </footer>
+
+      <div class="developer-credit">
+        Desarrollado por
+        <a
+          href="https://pompone.github.io/CV_Pompone.github.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Alejandro M. Pompone</a>
+      </div>
+    </section>
+  </main>
+
+  <audio id="radioAudio" preload="none"></audio>
+
+  <script>
+    window.__onGCastApiAvailable = function (isAvailable) {
+      window.dispatchEvent(
+        new CustomEvent("cast-api-available", { detail: isAvailable })
+      );
+    };
+  </script>
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
