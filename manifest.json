@@ -1,7 +1,7 @@
 {
   "name": "La Roca Online",
   "short_name": "La Roca",
-  "description": "Radio online del Ministerio Roca a las Naciones.",
+  "description": "Radio online del Ministerio Catedral Roca a las Naciones.",
   "id": "/LaRocaOnline/",
   "start_url": "./",
   "scope": "./",
