@@ -422,6 +422,16 @@ body:not(.power-off) .icon-btn.power {
   font-size: 1.25rem;
 }
 
+.cast-fallback svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .round-control:hover {
   background: #527fba;
   transform: translateY(-2px);
