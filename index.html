@@ -12,7 +12,7 @@
   <link rel="icon" href="./icons/favicon.ico" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=7" />
 </head>
 
 <body class="power-off">
@@ -130,12 +130,16 @@
         <div class="cast-slot">
           <button
             id="castFallbackBtn"
-            class="round-control cast-fallback"
+            class="round-control cast-fallback hidden"
             type="button"
             aria-label="Información sobre Chromecast"
             title="Comprobar disponibilidad de Chromecast"
           >
-            <span aria-hidden="true">▣</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3 7V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2" />
+              <path d="M3 12a9 9 0 0 1 9 9M3 17a4 4 0 0 1 4 4" />
+              <circle cx="3" cy="21" r="1" fill="currentColor" stroke="none" />
+            </svg>
           </button>
 
           <google-cast-launcher
@@ -193,6 +197,6 @@
     };
   </script>
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-  <script src="./script.js"></script>
+  <script src="./script.js?v=7"></script>
 </body>
 </html>
