@@ -8,11 +8,11 @@
 
   <title>La Roca Online</title>
 
-  <link rel="manifest" href="./manifest.json?v=9" />
+  <link rel="manifest" href="./manifest.json?v=10" />
   <link rel="icon" href="./icons/favicon.ico" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
-  <link rel="stylesheet" href="./style.css?v=9" />
+  <link rel="stylesheet" href="./style.css?v=10" />
 </head>
 
 <body class="power-off">
@@ -28,8 +28,8 @@
 
           <div class="station-copy">
             <p class="eyebrow">
-              <span class="signal-mark"></span>
-              TRANSMITIENDO DESDE LA ROCA
+              <span class="signal-mark" aria-hidden="true"></span>
+              <span id="signalText">TRANSMITIENDO DESDE LA ROCA ONLINE</span>
             </p>
             <p id="statusText" class="status" role="status">Radio apagada</p>
           </div>
@@ -197,6 +197,6 @@
     };
   </script>
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-  <script src="./script.js?v=9"></script>
+  <script src="./script.js?v=10"></script>
 </body>
 </html>
