@@ -48,7 +48,7 @@ function getCastSession() {
 function showCastControl(available) {
   // Usamos un botón propio: el launcher nativo puede ocultarse por su cuenta.
   castButton.classList.add("hidden");
-  castFallbackBtn.classList.remove("hidden");
+  castFallbackBtn.classList.toggle("hidden", !available);
   castFallbackBtn.title = available
     ? "Elegir dispositivo Chromecast"
     : "Comprobar disponibilidad de Chromecast";
@@ -391,7 +391,7 @@ setTimeout(initCast, 1500);
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("./service-worker.js")
+      .register("./service-worker.js", { updateViaCache: "none" })
       .catch((error) => {
         console.error("Service Worker:", error);
       });
