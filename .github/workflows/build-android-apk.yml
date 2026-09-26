@@ -1,0 +1,63 @@
+name: Build La Roca Android APK
+
+on:
+  push:
+    paths:
+      - "android/twa-manifest.json"
+      - ".github/workflows/build-android-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Bubblewrap
+        run: npm install --global @bubblewrap/cli@1.25.0
+
+      - name: Configure Bubblewrap
+        run: bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+
+      - name: Generate Android project
+        working-directory: android
+        run: bubblewrap update --skipVersionUpgrade
+
+      - name: Build unsigned APK
+        working-directory: android
+        run: bubblewrap build --skipSigning --skipPwaValidation
+
+      - name: Prepare signing inputs
+        working-directory: android
+        run: |
+          set -euo pipefail
+          apk_file="$(find . -name '*unsigned*.apk' -type f | head -n 1)"
+          if [ -z "$apk_file" ]; then
+            find . -name '*.apk' -type f
+            exit 1
+          fi
+          zipalign -p 4 "$apk_file" LaRocaOnline-unsigned-aligned.apk
+          signer_jar="$(find "$ANDROID_HOME/build-tools" -name apksigner.jar -type f | sort -V | tail -n 1)"
+          cp "$signer_jar" ./apksigner.jar
+
+      - name: Upload build inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: LaRocaOnline-unsigned
+          path: |
+            android/LaRocaOnline-unsigned-aligned.apk
+            android/apksigner.jar
+          if-no-files-found: error
