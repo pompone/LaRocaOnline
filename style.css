@@ -545,6 +545,44 @@ body:not(.power-off) .icon-btn.power {
   box-shadow: 0 0 10px var(--level-color);
 }
 
+
+.weather-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-height: 29px;
+  margin-top: 11px;
+  color: #dce8fa;
+  font-size: .86rem;
+}
+
+.weather-place {
+  font-weight: 650;
+}
+
+.weather-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.weather-temp {
+  color: var(--gold);
+  font-size: .94rem;
+}
+
+.weather-source {
+  margin-left: 5px;
+  color: #a8c7ed;
+  font-size: .65rem;
+  text-decoration: none;
+}
+
+.weather-source:hover {
+  text-decoration: underline;
+}
+
 .ministry-footer {
   display: flex;
   align-items: center;
@@ -717,7 +755,7 @@ body.power-off .icon-btn.power {
     border-radius: 0;
   }
 
-  .volume-panel {
+  .weather-panel {
     margin-bottom: 15px;
   }
 

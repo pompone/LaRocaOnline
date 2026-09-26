@@ -422,3 +422,55 @@ powerBtn.setAttribute("aria-pressed", "false");
 setPlayingUI(false, "Radio apagada");
 updateVolumeUI(Number(volumeSlider.value));
 showCastControl(false);
+
+// Temperatura y condición actuales para Ingeniero Huergo, Río Negro.
+const WEATHER_URL = "https://api.open-meteo.com/v1/forecast?latitude=-39.07146&longitude=-67.2379&current=temperature_2m,weather_code,is_day&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=1";
+const weatherTemp = document.getElementById("weatherTemp");
+const weatherIcon = document.getElementById("weatherIcon");
+let weatherLastUpdated = 0;
+let weatherLoading = false;
+
+function weatherSymbol(code, isDay) {
+  if (code === 0 || code === 1) return isDay ? "☀️" : "🌙";
+  if (code === 2) return isDay ? "🌤️" : "☁️";
+  if (code === 3) return "☁️";
+  if (code === 45 || code === 48) return "🌫️";
+  if (code >= 51 && code <= 67) return "🌧️";
+  if (code >= 71 && code <= 77) return "❄️";
+  if (code >= 80 && code <= 82) return "🌦️";
+  if (code >= 85 && code <= 86) return "🌨️";
+  if (code >= 95) return "⛈️";
+  return "🌤️";
+}
+
+async function updateWeather() {
+  if (weatherLoading || Date.now() - weatherLastUpdated < 15 * 60 * 1000) return;
+  weatherLoading = true;
+  try {
+    const response = await fetch(WEATHER_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`Clima HTTP ${response.status}`);
+    const data = await response.json();
+    const current = data.current;
+    if (!current || !Number.isFinite(current.temperature_2m)) {
+      throw new Error("Datos de clima incompletos");
+    }
+    weatherTemp.textContent = `${Math.round(current.temperature_2m)} °C`;
+    weatherIcon.textContent = weatherSymbol(current.weather_code, current.is_day === 1);
+    weatherIcon.title = "Condición climática actual";
+    weatherLastUpdated = Date.now();
+  } catch (error) {
+    console.warn("No se pudo cargar el clima:", error);
+    if (!weatherLastUpdated) {
+      weatherTemp.textContent = "-- °C";
+      weatherIcon.textContent = "🌤️";
+    }
+  } finally {
+    weatherLoading = false;
+  }
+}
+
+updateWeather();
+setInterval(updateWeather, 15 * 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) updateWeather();
+});

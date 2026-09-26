@@ -12,7 +12,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=12" />
+  <link rel="stylesheet" href="./style.css?v=13" />
 </head>
 
 <body class="power-off">
@@ -168,6 +168,14 @@
         />
       </div>
 
+
+      <div class="weather-panel" aria-label="Clima actual en Ingeniero Huergo">
+        <span class="weather-place">Ing. Huergo:</span>
+        <span id="weatherIcon" class="weather-icon" aria-hidden="true">🌤️</span>
+        <strong id="weatherTemp" class="weather-temp">-- °C</strong>
+        <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" class="weather-source">Open-Meteo</a>
+      </div>
+
       <footer class="ministry-footer">
         <img
           src="./icons/ministerio.png"
@@ -197,6 +205,6 @@
     };
   </script>
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-  <script src="./script.js?v=10"></script>
+  <script src="./script.js?v=13"></script>
 </body>
 </html>
