@@ -780,7 +780,6 @@ body.power-off .icon-btn.power {
   }
 
   .ministry-footer {
-    margin-top: 9px;
     padding-top: 8px;
   }
 }
@@ -815,7 +814,7 @@ body.power-off .icon-btn.power {
   }
 
   .ministry-footer {
-    margin-top: clamp(24px, 7dvh, 60px);
+    margin-top: clamp(48px, 12dvh, 105px);
   }
 
   .header-logo {
