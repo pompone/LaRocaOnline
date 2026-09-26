@@ -576,11 +576,6 @@ body:not(.power-off) .icon-btn.power {
   margin-left: 5px;
   color: #a8c7ed;
   font-size: .65rem;
-  text-decoration: none;
-}
-
-.weather-source:hover {
-  text-decoration: underline;
 }
 
 .ministry-footer {
