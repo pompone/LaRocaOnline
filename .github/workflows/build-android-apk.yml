@@ -34,7 +34,9 @@ jobs:
         run: npm install --global @bubblewrap/cli@1.25.0
 
       - name: Configure Bubblewrap
-        run: bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
 
       - name: Generate Android project
         working-directory: android
