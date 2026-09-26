@@ -572,12 +572,6 @@ body:not(.power-off) .icon-btn.power {
   font-size: .94rem;
 }
 
-.weather-source {
-  margin-left: 5px;
-  color: #a8c7ed;
-  font-size: .65rem;
-}
-
 .ministry-footer {
   display: flex;
   align-items: center;

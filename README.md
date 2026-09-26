@@ -76,3 +76,7 @@ python -m http.server 8080
 y luego abrir:
 
 `http://localhost:8080`
+
+## Datos meteorológicos
+
+La temperatura y la condición del tiempo son proporcionadas por [Open-Meteo](https://open-meteo.com/) bajo licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
