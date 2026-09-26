@@ -708,10 +708,21 @@ body.power-off .icon-btn.power {
   }
 
   .radio-card {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 22px 18px;
     border: 0;
     border-radius: 0;
+  }
+
+  .volume-panel {
+    margin-bottom: 15px;
+  }
+
+  .ministry-footer {
+    margin-top: auto;
   }
 
   .header-logo {
