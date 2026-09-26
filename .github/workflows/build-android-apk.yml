@@ -29,6 +29,7 @@ jobs:
           sdk_manager="$(find "$ANDROID_HOME/cmdline-tools" -path "*/bin/sdkmanager" -type f | head -n 1)"
           yes | "$sdk_manager" --licenses >/dev/null || true
           "$sdk_manager" "platforms;android-35" "build-tools;35.0.0"
+          ln -s "$(dirname "$(dirname "$sdk_manager")")" "$ANDROID_HOME/tools"
 
       - name: Install Bubblewrap
         run: npm install --global @bubblewrap/cli@1.25.0
