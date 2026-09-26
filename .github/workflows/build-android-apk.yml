@@ -56,7 +56,7 @@ jobs:
             find . -name '*.apk' -type f
             exit 1
           fi
-          zipalign -p 4 "$apk_file" LaRocaOnline-unsigned-aligned.apk
+          cp "$apk_file" LaRocaOnline-unsigned-aligned.apk
           signer_jar="$(find "$ANDROID_HOME/build-tools" -name apksigner.jar -type f | sort -V | tail -n 1)"
           cp "$signer_jar" ./apksigner.jar
 
