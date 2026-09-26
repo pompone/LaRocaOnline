@@ -328,6 +328,7 @@ body:not(.power-off) .icon-btn.power {
   border: 2px solid #78a9d8;
   border-radius: 12px;
   background: linear-gradient(#122847, #07192f);
+  overflow: hidden;
   box-shadow: inset 0 0 18px rgba(0, 0, 0, .65),
     0 0 22px rgba(68, 177, 255, .35);
 }
@@ -697,18 +698,18 @@ body.power-off .icon-btn.power {
 }
 
 @keyframes equalizer-a {
-  from { height: 18px; }
-  to { height: 85px; }
+  from { height: 18%; }
+  to { height: 90%; }
 }
 
 @keyframes equalizer-b {
-  from { height: 36px; }
-  to { height: 92px; }
+  from { height: 36%; }
+  to { height: 96%; }
 }
 
 @keyframes equalizer-c {
-  from { height: 12px; }
-  to { height: 68px; }
+  from { height: 12%; }
+  to { height: 75%; }
 }
 
 @keyframes marquee {
@@ -816,27 +817,31 @@ body.power-off .icon-btn.power {
   .radio-card {
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    min-height: 100dvh;
     padding: 22px 18px;
     border: 0;
     border-radius: 0;
   }
 
+  .main-controls {
+    margin-bottom: 20px;
+  }
+
   .volume-panel {
-    margin-top: 24px;
+    margin-top: auto;
   }
 
   .weather-panel {
-    margin-bottom: 0;
+    margin-bottom: auto;
   }
 
   .ministry-footer {
-    margin-top: clamp(80px, 20dvh, 175px);
+    margin-top: 12px;
   }
 
   .header-logo {
-    width: 110px;
-    height: 90px;
+    width: 125px;
+    height: 100px;
   }
 
   .station-heading {
@@ -884,8 +889,8 @@ body.power-off .icon-btn.power {
   }
 
   .header-logo {
-    width: 90px;
-    height: 76px;
+    width: 105px;
+    height: 90px;
   }
 
   .eyebrow {
@@ -918,7 +923,7 @@ body.power-off .icon-btn.power {
   }
 
   .header-logo {
-    height: 78px;
+    height: 100px;
   }
 
   .display {
@@ -936,6 +941,7 @@ body.power-off .icon-btn.power {
 
   .main-controls {
     margin-top: 10px;
+    margin-bottom: 16px;
   }
 
   .play-control {
@@ -944,7 +950,7 @@ body.power-off .icon-btn.power {
   }
 
   .volume-panel {
-    margin-top: 20px;
+    margin-top: auto;
     padding-top: 9px;
     padding-bottom: 9px;
   }
@@ -952,7 +958,7 @@ body.power-off .icon-btn.power {
   .weather-panel {
     min-height: 24px;
     margin-top: 7px;
-    margin-bottom: 8px;
+    margin-bottom: auto;
   }
 
   .ministry-footer {
