@@ -840,8 +840,9 @@ body.power-off .icon-btn.power {
   }
 
   .header-logo {
-    width: 125px;
+    width: 135px;
     height: 100px;
+    object-fit: cover;
   }
 
   .station-heading {
@@ -889,7 +890,7 @@ body.power-off .icon-btn.power {
   }
 
   .header-logo {
-    width: 105px;
+    width: 120px;
     height: 90px;
   }
 
