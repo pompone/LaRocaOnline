@@ -726,12 +726,25 @@ body.power-off .icon-btn.power {
   }
 }
 
+@media (min-width: 601px) {
+  .radio-card {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 32px);
+  }
+
+  .ministry-footer {
+    margin-top: auto;
+  }
+}
+
 @media (min-width: 601px) and (max-height: 850px) {
   body {
     padding: 10px;
   }
 
   .radio-card {
+    min-height: calc(100dvh - 20px);
     padding-top: clamp(10px, 2dvh, 22px);
     padding-bottom: clamp(10px, 2dvh, 18px);
   }
@@ -773,9 +786,15 @@ body.power-off .icon-btn.power {
 }
 
 @media (max-width: 600px) {
+  html {
+    background: #142b52;
+  }
+
   body {
+    display: block;
+    min-height: 0;
     padding: 0;
-    background: #dcecff;
+    background: #142b52;
   }
 
   .app-shell {
@@ -785,19 +804,18 @@ body.power-off .icon-btn.power {
   .radio-card {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 0;
     padding: 22px 18px;
     border: 0;
     border-radius: 0;
   }
 
   .weather-panel {
-    margin-bottom: 15px;
+    margin-bottom: 0;
   }
 
   .ministry-footer {
-    margin-top: auto;
+    margin-top: clamp(24px, 7dvh, 60px);
   }
 
   .header-logo {
@@ -874,6 +892,59 @@ body.power-off .icon-btn.power {
   .ministry-footer img {
     width: 46px;
     height: 46px;
+  }
+}
+
+@media (max-width: 600px) and (max-height: 820px) {
+  .radio-card {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .header-logo {
+    height: 78px;
+  }
+
+  .display {
+    height: clamp(190px, 28dvh, 230px);
+    margin-top: 8px;
+  }
+
+  .speaker {
+    top: 27%;
+  }
+
+  .equalizer {
+    height: clamp(80px, 12dvh, 98px);
+  }
+
+  .main-controls {
+    margin-top: 10px;
+  }
+
+  .play-control {
+    width: 64px;
+    height: 64px;
+  }
+
+  .volume-panel {
+    margin-top: 9px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+
+  .weather-panel {
+    min-height: 24px;
+    margin-top: 7px;
+    margin-bottom: 8px;
+  }
+
+  .ministry-footer {
+    padding-top: 8px;
+  }
+
+  .developer-credit {
+    margin-top: 8px;
   }
 }
 
