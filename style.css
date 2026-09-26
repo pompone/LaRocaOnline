@@ -809,12 +809,16 @@ body.power-off .icon-btn.power {
     border-radius: 0;
   }
 
+  .volume-panel {
+    margin-top: 24px;
+  }
+
   .weather-panel {
     margin-bottom: 0;
   }
 
   .ministry-footer {
-    margin-top: clamp(48px, 12dvh, 105px);
+    margin-top: clamp(80px, 20dvh, 175px);
   }
 
   .header-logo {
@@ -927,7 +931,7 @@ body.power-off .icon-btn.power {
   }
 
   .volume-panel {
-    margin-top: 9px;
+    margin-top: 20px;
     padding-top: 9px;
     padding-bottom: 9px;
   }
