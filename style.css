@@ -21,8 +21,10 @@ body {
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
+  align-items: safe center;
   padding: 16px;
   background: linear-gradient(145deg, #dcecff, #f5f8ff 55%, #fff0cf);
 }
@@ -721,6 +723,52 @@ body.power-off .icon-btn.power {
   50% {
     opacity: .25;
     box-shadow: 0 0 2px #ff3545;
+  }
+}
+
+@media (min-width: 601px) and (max-height: 850px) {
+  body {
+    padding: 10px;
+  }
+
+  .radio-card {
+    padding-top: clamp(10px, 2dvh, 22px);
+    padding-bottom: clamp(10px, 2dvh, 18px);
+  }
+
+  .header-logo {
+    height: clamp(76px, 12dvh, 112px);
+  }
+
+  .display {
+    height: clamp(175px, 30dvh, 260px);
+    margin-top: 8px;
+  }
+
+  .speaker {
+    top: 22%;
+    width: min(24%, 125px);
+  }
+
+  .equalizer {
+    height: min(118px, 16dvh);
+  }
+
+  .main-controls {
+    margin-top: 10px;
+  }
+
+  .volume-panel {
+    margin-top: 8px;
+  }
+
+  .weather-panel {
+    margin-top: 7px;
+  }
+
+  .ministry-footer {
+    margin-top: 9px;
+    padding-top: 8px;
   }
 }
 
