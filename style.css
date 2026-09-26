@@ -727,6 +727,11 @@ body.power-off .icon-btn.power {
 }
 
 @media (min-width: 601px) {
+  .header-logo {
+    width: 180px;
+    height: 140px;
+  }
+
   .radio-card {
     display: flex;
     flex-direction: column;
