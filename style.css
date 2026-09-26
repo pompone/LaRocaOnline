@@ -728,8 +728,8 @@ body.power-off .icon-btn.power {
 
 @media (min-width: 601px) {
   .header-logo {
-    width: 180px;
-    height: 140px;
+    width: 190px;
+    height: 145px;
   }
 
   .radio-card {
@@ -738,8 +738,16 @@ body.power-off .icon-btn.power {
     min-height: calc(100dvh - 32px);
   }
 
-  .ministry-footer {
+  .volume-panel {
     margin-top: auto;
+  }
+
+  .weather-panel {
+    margin-bottom: auto;
+  }
+
+  .ministry-footer {
+    margin-top: 15px;
   }
 }
 
@@ -755,7 +763,7 @@ body.power-off .icon-btn.power {
   }
 
   .header-logo {
-    height: clamp(76px, 12dvh, 112px);
+    height: clamp(110px, 19dvh, 145px);
   }
 
   .display {
@@ -777,7 +785,7 @@ body.power-off .icon-btn.power {
   }
 
   .volume-panel {
-    margin-top: 8px;
+    margin-top: auto;
   }
 
   .weather-panel {
