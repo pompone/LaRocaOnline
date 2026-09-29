@@ -822,8 +822,8 @@ body.power-off .icon-btn.power {
   }
 
   .speaker {
-    top: 22%;
-    width: min(24%, 125px);
+    top: 18%;
+    width: clamp(100px, 15dvh, 125px);
   }
 
   .equalizer {
