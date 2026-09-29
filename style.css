@@ -491,6 +491,51 @@ body:not(.power-off) .icon-btn.power {
   transform: scale(.96);
 }
 
+.control-icon,
+.control-icon svg {
+  display: block;
+  width: 27px;
+  height: 27px;
+}
+
+.playback-icon svg {
+  width: 31px;
+  height: 31px;
+}
+
+.speaker-body {
+  fill: currentColor;
+}
+
+.volume-wave,
+.volume-slash {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.volume-slash,
+.volume-muted .volume-wave,
+.volume-low .wave-two {
+  display: none;
+}
+
+.volume-muted .volume-slash,
+.playback-icon.is-playing .pause-shape {
+  display: block;
+}
+
+.play-shape,
+.pause-shape {
+  fill: currentColor;
+}
+
+.pause-shape,
+.playback-icon.is-playing .play-shape {
+  display: none;
+}
+
 .volume-panel {
   margin-top: 13px;
   padding: 12px 17px;
@@ -796,6 +841,51 @@ body.power-off .icon-btn.power {
   .ministry-footer {
     padding-top: 8px;
   }
+}
+
+/* Ventanas de escritorio con poca altura, como 1366 × 768 con barras visibles. */
+@media (min-width: 601px) and (max-height: 700px) {
+  body { padding: 8px; }
+
+  .radio-card {
+    min-height: calc(100dvh - 16px);
+    padding: 8px 24px;
+  }
+
+  .header-logo {
+    width: 160px;
+    height: 96px;
+  }
+
+  .display {
+    height: clamp(150px, 26dvh, 180px);
+    margin-top: 6px;
+  }
+
+  .speaker { top: 20%; }
+  .equalizer { height: 90px; }
+
+  .main-controls { margin-top: 6px; }
+  .play-control { width: 62px; height: 62px; }
+
+  .volume-panel {
+    margin-top: auto;
+    padding: 8px 14px;
+  }
+
+  .weather-panel {
+    min-height: 22px;
+    margin-top: 4px;
+    margin-bottom: auto;
+  }
+
+  .ministry-footer {
+    margin-top: 6px;
+    padding-top: 5px;
+  }
+
+  .ministry-footer img { width: 40px; height: 40px; }
+  .developer-credit { margin-top: 4px; }
 }
 
 @media (max-width: 600px) {
