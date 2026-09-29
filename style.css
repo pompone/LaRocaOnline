@@ -469,6 +469,9 @@ body:not(.power-off) .icon-btn.power {
 }
 
 .play-control {
+  display: grid;
+  place-items: center;
+  padding: 0;
   justify-self: center;
   width: 72px;
   height: 72px;
@@ -498,6 +501,7 @@ body:not(.power-off) .icon-btn.power {
   height: 27px;
 }
 
+.playback-icon,
 .playback-icon svg {
   width: 31px;
   height: 31px;
