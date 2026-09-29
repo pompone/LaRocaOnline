@@ -36,7 +36,7 @@ function setPlayingUI(isPlaying, message) {
   document.body.classList.remove("stream-error");
   signalText.textContent = "TRANSMITIENDO DESDE LA ROCA ONLINE";
   document.body.classList.toggle("playing", isPlaying);
-  playIcon.textContent = isPlaying ? "❚❚" : "▶";
+  playIcon.classList.toggle("is-playing", isPlaying);
   playBtn.setAttribute(
     "aria-label",
     isPlaying ? "Pausar" : "Reproducir"
@@ -209,13 +209,10 @@ function updateVolumeUI(value) {
 
   document.body.classList.toggle("is-muted", value === 0);
 
-  if (value === 0) {
-    muteIcon.textContent = "🔇";
-  } else if (value < 50) {
-    muteIcon.textContent = "🔉";
-  } else {
-    muteIcon.textContent = "🔊";
-  }
+  muteIcon.classList.toggle("volume-muted", value === 0);
+  muteIcon.classList.toggle("volume-low", value > 0 && value < 50);
+  muteIcon.classList.toggle("volume-high", value >= 50);
+  muteBtn.setAttribute("aria-label", value === 0 ? "Activar sonido" : "Silenciar");
 }
 
 function applyVolume(value) {
