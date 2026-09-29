@@ -1,0 +1,17 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "presence": {
+      "larocaonline": {
+        ".read": true,
+        "$uid": {
+          "$session": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.hasChildren(['since']) && newData.child('since').isNumber()"
+          }
+        }
+      }
+    }
+  }
+}

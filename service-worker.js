@@ -1,10 +1,12 @@
-const CACHE_NAME = "la-roca-v29";
+const CACHE_NAME = "la-roca-v30";
 
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
+  "./online.js",
+  "./firebase-config.js",
   "./manifest.json",
   "./icons/favicon.ico",
   "./icons/favicon-48.png",
