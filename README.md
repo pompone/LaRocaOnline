@@ -17,6 +17,8 @@ Proyecto web/PWA inspirado en la estructura de Radios_VR.
 - PWA con `manifest.json` y `service-worker.js`.
 - Google Cast/Chromecast usando Default Media Receiver.
 - El botón Cast aparece cuando el navegador/SDK detecta disponibilidad.
+- Clima actual de Ingeniero Huergo.
+- Contador de sesiones con la app abierta mediante Firebase Realtime Database.
 
 ## Archivos
 
@@ -25,9 +27,12 @@ Proyecto web/PWA inspirado en la estructura de Radios_VR.
 - `script.js`
 - `manifest.json`
 - `service-worker.js`
-- `icons/icon-192.png`
-- `icons/icon-512.png`
-- `icons/logo-la-roca.png`
+- `online.js` y `firebase-config.js`
+- `database.rules.json` y `README-firebase.md`
+- `icons/favicon.ico` y `icons/favicon-48.png`
+- `icons/apple-touch-icon.png`
+- `icons/icon-192.png`, `icons/icon-512.png` e `icons/icon-maskable-512.png`
+- `icons/logo-la-roca.png` e `icons/ministerio.png`
 
 ## Personalización rápida
 

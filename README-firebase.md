@@ -5,3 +5,5 @@ Cuenta sesiones con la app abierta. Dos pestañas abiertas cuentan como dos sesi
 El proyecto Firebase `la-roca-online` usa Realtime Database en Estados Unidos (us-central1), Authentication anónima y las reglas de `database.rules.json`. La URL de la base y la configuración de la app web están en `firebase-config.js`.
 
 Para probarlo, abrí la radio en dos dispositivos: el contador debería subir. Al cerrar uno, puede tardar unos segundos en bajar porque el servidor elimina la presencia mediante `onDisconnect`.
+
+El contador es orientativo: Authentication anónima no impide que alguien automatice sesiones y altere el número. Spark admite hasta 100 conexiones simultáneas a Realtime Database. Las reglas de este repositorio se aplican manualmente en la consola Firebase; si se modifican, actualizar ambos lugares.

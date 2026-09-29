@@ -1,9 +1,16 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import {
-  getDatabase, ref, push, set, remove, onValue, onDisconnect, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 import { firebaseConfig } from "./firebase-config.js";
+
+async function startPresence() {
+  try {
+    const [
+      { initializeApp },
+      { getAuth, signInAnonymously },
+      { getDatabase, ref, push, set, remove, onValue, onDisconnect, serverTimestamp }
+    ] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js")
+    ]);
 
 const onlineCount = document.getElementById("onlineCount");
 
@@ -65,3 +72,10 @@ if (!firebaseConfig.apiKey || !firebaseConfig.databaseURL || !firebaseConfig.app
     }
   });
 }
+
+  } catch (error) {
+    console.warn("El contador online no está disponible:", error);
+  }
+}
+
+void startPresence();
