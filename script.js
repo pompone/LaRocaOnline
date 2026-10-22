@@ -17,6 +17,40 @@ const liveDot = document.getElementById("liveDot");
 const liveLabel = document.getElementById("liveLabel");
 const signalText = document.getElementById("signalText");
 let bufferingTimer = null;
+let reconnectTimer = null;
+let reconnectAttempts = 0;
+let wantsLocalAudio = false;
+const RECONNECT_DELAYS = [3000, 6000, 12000, 20000, 30000];
+
+function cancelReconnect() {
+  clearTimeout(reconnectTimer);
+  reconnectTimer = null;
+}
+
+function scheduleReconnect() {
+  if (!poweredOn || !wantsLocalAudio || getCastSession() || reconnectTimer) return;
+  const delay = RECONNECT_DELAYS[Math.min(reconnectAttempts, RECONNECT_DELAYS.length - 1)];
+  reconnectAttempts++;
+  setStreamError();
+  setStatus(`Reconectando en ${Math.ceil(delay / 1000)} segundos...`);
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    if (!poweredOn || !wantsLocalAudio || getCastSession()) return;
+    try {
+      audio.pause();
+      audio.load(); // Reinicia una conexión de audio bloqueada.
+      await audio.play();
+    } catch (error) {
+      if (error.name === "NotAllowedError") {
+        wantsLocalAudio = false; // Requiere una nueva interacción del oyente.
+        setStatus("Tocá Play para continuar escuchando");
+        return;
+      }
+      if (poweredOn && wantsLocalAudio) scheduleReconnect();
+    }
+  }, delay);
+}
+
 
 let poweredOn = false;
 let castReady = false;
@@ -65,7 +99,7 @@ function setBuffering() {
   clearTimeout(bufferingTimer);
   bufferingTimer = setTimeout(() => {
     if (poweredOn && !getCastSession() && !audio.paused && audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
-      setStreamError();
+      scheduleReconnect();
     }
   }, 8000);
 }
@@ -85,6 +119,9 @@ function showCastControl(available) {
 
 async function playLocal() {
   if (!poweredOn) return;
+  wantsLocalAudio = true;
+  cancelReconnect();
+  if (audio.error) audio.load();
 
   try {
     setStatus("Conectando...");
@@ -97,13 +134,18 @@ async function playLocal() {
     }
   } catch (error) {
     console.error("Error al reproducir:", error);
-    if (poweredOn) {
-      setStreamError();
+    if (poweredOn && error.name !== "NotAllowedError") {
+      scheduleReconnect();
+    } else if (error.name === "NotAllowedError") {
+      wantsLocalAudio = false;
+      setStatus("Tocá Play para continuar escuchando");
     }
   }
 }
 
 function pauseLocal() {
+  wantsLocalAudio = false;
+  cancelReconnect();
   audio.pause();
   setPlayingUI(false, "Pausada");
 }
@@ -264,6 +306,9 @@ powerBtn.addEventListener("click", async () => {
   powerBtn.setAttribute("aria-pressed", String(poweredOn));
 
   if (!poweredOn) {
+    wantsLocalAudio = false;
+    cancelReconnect();
+    clearTimeout(bufferingTimer);
     audio.pause();
 
     const mediaSession = getCastSession()?.getMediaSession();
@@ -284,6 +329,8 @@ powerBtn.addEventListener("click", async () => {
 
 audio.addEventListener("playing", () => {
   if (!getCastSession() && poweredOn) {
+    reconnectAttempts = 0;
+    cancelReconnect();
     setPlayingUI(true, "Reproduciendo");
   }
 });
@@ -294,8 +341,8 @@ audio.addEventListener("stalled", setBuffering);
 audio.addEventListener("error", () => {
   console.error("MediaError:", audio.error);
 
-  if (!getCastSession() && poweredOn) {
-    setStreamError();
+  if (!getCastSession() && poweredOn && wantsLocalAudio) {
+    scheduleReconnect();
   }
 });
 
