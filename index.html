@@ -274,7 +274,8 @@
     const MESSAGE_CACHE_KEY = "la-roca-mensajes-v1";
     const MESSAGE_CACHE_TTL = 2 * 60 * 1000;
     let allMessages = [];
-    let shownMessages = 10;
+    let messagesPage = 0;
+    const MESSAGES_PAGE_SIZE = 10;
     let messagesUpdatedAt = 0;
     let messagesRequest = null;
     try {
@@ -287,7 +288,7 @@
       console.warn("Caché de mensajes:", error);
     }
     function updateMoreButton() {
-      const hasOlder = shownMessages < allMessages.length;
+      const hasOlder = (messagesPage + 1) * MESSAGES_PAGE_SIZE < allMessages.length;
       const atBottom = messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight <= 24;
       messagesMoreBtn.hidden = !hasOlder || !atBottom;
     }
@@ -301,7 +302,7 @@
         p.textContent = "Todavía no hay mensajes publicados.";
         messagesList.append(p);
       }
-      for (const message of allMessages.slice(0, shownMessages)) {
+      for (const message of allMessages.slice(messagesPage * MESSAGES_PAGE_SIZE, (messagesPage + 1) * MESSAGES_PAGE_SIZE)) {
         const entry = document.createElement("article");
         entry.style.cssText = "padding:12px 0;border-bottom:1px solid #ffffff33;overflow-wrap:anywhere";
         const heading = document.createElement("div");
@@ -373,9 +374,11 @@
       if (scrollArea) scrollArea.scrollTop += event.deltaY;
     }, {capture: true, passive: false});
     messagesMoreBtn.addEventListener("click", () => {
-      shownMessages += 10;
+      messagesPage += 1;
+      messagesList.scrollTop = 0;
       renderMessages();
-      messagesMoreBtn.hidden = true;
+      messagesList.scrollTop = 0;
+      updateMoreButton();
     });
     const messageName = document.getElementById("messageName");
     const messageText = document.getElementById("messageText");
@@ -454,6 +457,7 @@
       messagesToggleBtn.setAttribute("aria-expanded", String(open));
       messagesToggleBtn.setAttribute("aria-label", open ? "Ocultar mensajes" : "Mostrar mensajes");
       if (open) {
+        messagesPage = 0;
         showMessagesView(false);
         loadMessages();
         messagesCloseBtn.focus();
