@@ -193,9 +193,8 @@
           <button id="messagesCloseBtn" class="messages-close" type="button" aria-label="Cerrar mensajes" title="Cerrar">×</button>
         </div>
         <div id="messagesListView" class="messages-view">
-          <div class="messages-list" aria-live="polite">
-            <p class="messages-empty">Próximamente vas a poder leer los mensajes de los oyentes acá.</p>
-          </div>
+          <div id="messagesList" class="messages-list" aria-live="polite"><p class="messages-empty">Cargando mensajes...</p></div>
+          <button id="messagesMoreBtn" class="messages-action" type="button" hidden>Ver más mensajes</button>
           <button id="messagesComposeBtn" class="messages-action" type="button">✉ Escribir mensaje</button>
         </div>
         <div id="messagesComposeView" class="messages-view" hidden>
@@ -254,6 +253,53 @@
     const messagesComposeBtn = document.getElementById("messagesComposeBtn");
     const messagesBackBtn = document.getElementById("messagesBackBtn");
 
+    const messagesList = document.getElementById("messagesList");
+    const messagesMoreBtn = document.getElementById("messagesMoreBtn");
+    const messagesApi = "https://script.google.com/macros/s/AKfycbx0-d8po6vpmYUR62a36cSUv1dWK_cEFmFVp6CwUE6h3yPJcEVzoB_HOIGk-P7rOd6tlw/exec";
+    let allMessages = [];
+    let shownMessages = 10;
+    function renderMessages() {
+      messagesList.replaceChildren();
+      if (!allMessages.length) {
+        const p = document.createElement("p");
+        p.textContent = "Todavía no hay mensajes publicados.";
+        messagesList.append(p);
+      }
+      for (const message of allMessages.slice(0, shownMessages)) {
+        const entry = document.createElement("article");
+        entry.style.cssText = "padding:12px 0;border-bottom:1px solid #ffffff33;overflow-wrap:anywhere";
+        const author = document.createElement("strong");
+        author.style.color = "#ffd16b";
+        author.textContent = message.usuario || "Oyente";
+        const body = document.createElement("p");
+        body.style.whiteSpace = "pre-wrap";
+        body.textContent = message.mensaje;
+        entry.append(author, body);
+        messagesList.append(entry);
+      }
+      messagesMoreBtn.hidden = shownMessages >= allMessages.length;
+    }
+    async function loadMessages() {
+      messagesList.textContent = "Cargando mensajes...";
+      messagesMoreBtn.hidden = true;
+      try {
+        const response = await fetch(messagesApi, {cache:"no-store"});
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const data = await response.json();
+        if (!data.ok || !Array.isArray(data.mensajes)) throw new Error("Respuesta inválida");
+        allMessages = data.mensajes.filter(m => m && typeof m.mensaje === "string");
+        allMessages.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+        shownMessages = 10;
+        renderMessages();
+      } catch (error) {
+        console.warn("Mensajes:", error);
+        messagesList.textContent = "No se pudieron cargar los mensajes.";
+      }
+    }
+    messagesMoreBtn.addEventListener("click", () => {
+      shownMessages += 10;
+      renderMessages();
+    });
     function showMessagesView(compose) {
       messagesListView.hidden = compose;
       messagesComposeView.hidden = !compose;
@@ -266,6 +312,7 @@
       messagesToggleBtn.setAttribute("aria-label", open ? "Ocultar mensajes" : "Mostrar mensajes");
       if (open) {
         showMessagesView(false);
+        loadMessages();
         messagesCloseBtn.focus();
       } else {
         messagesToggleBtn.focus();
