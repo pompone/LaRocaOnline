@@ -1146,3 +1146,8 @@ body.power-off .icon-btn.power {
 .message-entry p { margin: 7px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
 .messages-action[hidden] { display: none; }
 .messages-retry { width: 100%; padding: 10px; border: 1px solid #ffd16b; border-radius: 9px; color: #fff; background: transparent; }
+
+/* Resaltar el cierre de mensajes al pasar el puntero. */
+.messages-close { cursor: pointer; transition: background .2s ease, border-color .2s ease, color .2s ease; }
+.messages-close:hover { background: #b91c1c; border-color: #ef4444; color: #fff; }
+.messages-close:focus-visible { outline: 2px solid #ef4444; outline-offset: 3px; }
