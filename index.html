@@ -12,7 +12,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=37" />
+  <link rel="stylesheet" href="./style.css?v=38" />
   <style>
     /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
     #messagesCloseBtn:hover, #messagesCloseBtn:active {
@@ -215,6 +215,10 @@
             <input id="messageName" type="text" placeholder="Escribí tu nombre" maxlength="40" required />
             <label for="messageText">Tu mensaje</label>
             <textarea id="messageText" rows="3" placeholder="Escribí tu mensaje" maxlength="500" required></textarea>
+            <div class="emoji-picker-wrap">
+              <button id="emojiToggleBtn" class="emoji-toggle" type="button" aria-expanded="false" aria-controls="emojiPicker" aria-label="Elegir emoji">😊 Emojis</button>
+              <div id="emojiPicker" class="emoji-picker" hidden aria-label="Elegir un emoji"></div>
+            </div>
             <div class="messages-form-actions">
               <button id="messagesBackBtn" class="messages-back" type="button">← Volver</button>
               <button id="messageSendBtn" type="button" style="cursor:pointer;opacity:1;background:#e8bd69;color:#142b52">Enviar mensaje</button>
@@ -325,6 +329,33 @@
     const messageText = document.getElementById("messageText");
     const messageSendBtn = document.getElementById("messageSendBtn");
     const messageSendStatus = document.getElementById("messageSendStatus");
+    const emojiToggleBtn = document.getElementById("emojiToggleBtn");
+    const emojiPicker = document.getElementById("emojiPicker");
+    const emojis = ["🙏","❤️","🙌","😊","😂","😍","🔥","✨","🕊️","📖","🎶","👏","💙","🥰","👍","🎉","🌟","🤗","💪","😇"];
+    for (const emoji of emojis) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "emoji-choice";
+      button.textContent = emoji;
+      button.setAttribute("aria-label", "Insertar emoji " + emoji);
+      button.addEventListener("click", () => {
+        const start = messageText.selectionStart ?? messageText.value.length;
+        const end = messageText.selectionEnd ?? start;
+        const newText = messageText.value.slice(0,start) + emoji + messageText.value.slice(end);
+        if (newText.length > messageText.maxLength) return;
+        messageText.value = newText;
+        const cursor = start + emoji.length;
+        messageText.focus();
+        messageText.setSelectionRange(cursor,cursor);
+        emojiPicker.hidden = true;
+        emojiToggleBtn.setAttribute("aria-expanded","false");
+      });
+      emojiPicker.append(button);
+    }
+    emojiToggleBtn.addEventListener("click", () => {
+      emojiPicker.hidden = !emojiPicker.hidden;
+      emojiToggleBtn.setAttribute("aria-expanded",String(!emojiPicker.hidden));
+    });
     let sendingMessage = false;
     messageSendBtn.addEventListener("click", async () => {
       if (sendingMessage) return;
