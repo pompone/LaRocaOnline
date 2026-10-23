@@ -1139,3 +1139,10 @@ body.power-off .icon-btn.power {
 .messages-action { display: block; width: 100%; margin-top: 14px; padding: 12px; border: 1px solid #e8bd69; border-radius: 10px; background: #e8bd69; color: #142b52; font-weight: 700; }
 .messages-form-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .messages-form-actions .messages-back { border: 1px solid rgba(255,255,255,.5); border-radius: 9px; padding: 10px 14px; background: transparent; color: #fff; cursor: pointer; }
+
+.message-entry { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.2); }
+.message-entry:last-child { border-bottom: 0; }
+.message-entry strong { color: #ffd16b; overflow-wrap: anywhere; }
+.message-entry p { margin: 7px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
+.messages-action[hidden] { display: none; }
+.messages-retry { width: 100%; padding: 10px; border: 1px solid #ffd16b; border-radius: 9px; color: #fff; background: transparent; }
