@@ -412,16 +412,25 @@ body:not(.power-off) .icon-btn.power {
 
 .main-controls {
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr 1fr;
+  grid-template-columns: 1fr 1.2fr 1fr;
   align-items: center;
   gap: 12px;
-  max-width: 365px;
+  max-width: 300px;
   margin: 16px auto 0;
 }
 
+/* La cuarta posición solo se reserva cuando Chromecast es visible. */
+.main-controls:has(.cast-slot > :not(.hidden)) {
+  grid-template-columns: 1fr 1.2fr 1fr 1fr;
+  max-width: 365px;
+}
+
 .cast-slot {
-  display: grid;
+  display: none;
   place-items: center;
+}
+.main-controls:has(.cast-slot > :not(.hidden)) .cast-slot {
+  display: grid;
 }
 
 .cast-slot > * {
