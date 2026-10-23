@@ -1092,17 +1092,34 @@ body.power-off .icon-btn.power {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translate(-50%, -46%) scale(.96);
-  transition: opacity .35s ease, transform .35s ease, visibility .35s;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scaleX(.025) scaleY(.012);
+  filter: brightness(2.2);
+  transition:
+    transform 650ms cubic-bezier(.22,.75,.22,1),
+    opacity 420ms ease,
+    filter 650ms ease,
+    visibility 0s linear 650ms;
+  will-change: transform, opacity;
 }
 .messages-panel.is-open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) scaleX(1) scaleY(1);
+  filter: brightness(1);
+  transition:
+    transform 700ms cubic-bezier(.18,.85,.2,1),
+    opacity 550ms ease,
+    filter 700ms ease,
+    visibility 0s;
 }
 @media (prefers-reduced-motion: reduce) {
-  .messages-panel { transition-duration: .01ms; }
+  .messages-panel, .messages-panel.is-open {
+    transition-duration: .01ms;
+    transition-delay: 0ms;
+    filter: none;
+  }
 }
 .messages-panel h2 { margin: 0 0 8px; font-size: 1.05rem; color: var(--gold); }
 .messages-notice { margin: 0 0 14px; font-weight: 650; }
