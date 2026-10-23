@@ -279,6 +279,8 @@ document.addEventListener(
   "wheel",
   (event) => {
     if (event.ctrlKey) return;
+    const panel = document.getElementById("messagesPanel");
+    if (panel && panel.classList.contains("is-open")) return;
 
     event.preventDefault();
     const change = event.deltaY < 0 ? 5 : -5;
