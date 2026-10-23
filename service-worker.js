@@ -1,4 +1,4 @@
-const CACHE_NAME = "la-roca-v37";
+const CACHE_NAME = "la-roca-v38";
 
 const ASSETS = [
   "./",
@@ -55,14 +55,24 @@ self.addEventListener("fetch", (event) => {
     /\.(html|css|js|json)$/i.test(url.pathname);
 
   if (isPageOrCode) {
-    /* Consultar primero al servidor evita quedar en una versión vieja. */
-    event.respondWith(
-      fetch(request, { cache: "no-store" }).catch(async () => {
-        const cached = await caches.match(request, { ignoreSearch: true });
-        if (cached) return cached;
-        throw new Error("Sin conexión y sin copia guardada");
-      })
-    );
+    // Entrega inmediatamente la copia local y actualiza en segundo plano.
+    event.respondWith((async () => {
+      const cached = await caches.match(request, { ignoreSearch: true });
+      const network = fetch(request, { cache: "no-cache" }).then(response => {
+        if (response.ok) {
+          const copy = response.clone();
+          event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(request, copy)));
+        }
+        return response;
+      }).catch(() => null);
+      if (cached) {
+        event.waitUntil(network);
+        return cached;
+      }
+      const response = await network;
+      if (response) return response;
+      throw new Error("Sin conexión y sin copia guardada");
+    })());
     return;
   }
 
