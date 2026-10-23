@@ -315,7 +315,7 @@
         renderMessages();
         return;
       }
-      if (messagesUpdatedAt && !force) renderMessages();
+      if (messagesUpdatedAt) renderMessages();
       else {
         messagesList.textContent = "Cargando mensajes...";
         messagesMoreBtn.hidden = true;
