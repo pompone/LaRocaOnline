@@ -271,12 +271,26 @@
     const messagesList = document.getElementById("messagesList");
     const messagesMoreBtn = document.getElementById("messagesMoreBtn");
     const messagesApi = "https://script.google.com/macros/s/AKfycbx0-d8po6vpmYUR62a36cSUv1dWK_cEFmFVp6CwUE6h3yPJcEVzoB_HOIGk-P7rOd6tlw/exec";
+    const MESSAGE_CACHE_KEY = "la-roca-mensajes-v1";
+    const MESSAGE_CACHE_TTL = 2 * 60 * 1000;
     let allMessages = [];
     let shownMessages = 10;
+    let messagesUpdatedAt = 0;
+    let messagesRequest = null;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(MESSAGE_CACHE_KEY) || "null");
+      if (saved && Array.isArray(saved.mensajes) && Number.isFinite(saved.fecha)) {
+        allMessages = saved.mensajes;
+        messagesUpdatedAt = saved.fecha;
+      }
+    } catch (error) {
+      console.warn("Caché de mensajes:", error);
+    }
     function renderMessages() {
       messagesList.replaceChildren();
       if (!allMessages.length) {
         const p = document.createElement("p");
+        p.className = "messages-empty";
         p.textContent = "Todavía no hay mensajes publicados.";
         messagesList.append(p);
       }
@@ -294,22 +308,41 @@
       }
       messagesMoreBtn.hidden = shownMessages >= allMessages.length;
     }
-    async function loadMessages() {
-      messagesList.textContent = "Cargando mensajes...";
-      messagesMoreBtn.hidden = true;
-      try {
-        const response = await fetch(messagesApi, {cache:"no-store"});
-        if (!response.ok) throw new Error("HTTP " + response.status);
-        const data = await response.json();
-        if (!data.ok || !Array.isArray(data.mensajes)) throw new Error("Respuesta inválida");
-        allMessages = data.mensajes.filter(m => m && typeof m.mensaje === "string");
-        allMessages.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-        shownMessages = 10;
+    async function loadMessages(force = false) {
+      if (!force && messagesUpdatedAt && Date.now() - messagesUpdatedAt < MESSAGE_CACHE_TTL) {
         renderMessages();
-      } catch (error) {
-        console.warn("Mensajes:", error);
-        messagesList.textContent = "No se pudieron cargar los mensajes.";
+        return;
       }
+      if (messagesUpdatedAt) renderMessages();
+      else {
+        messagesList.textContent = "Cargando mensajes...";
+        messagesMoreBtn.hidden = true;
+      }
+      if (messagesRequest) return messagesRequest;
+      messagesRequest = (async () => {
+        try {
+          const response = await fetch(messagesApi, {cache:"no-store"});
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          const data = await response.json();
+          if (!data.ok || !Array.isArray(data.mensajes)) throw new Error("Respuesta inválida");
+          allMessages = data.mensajes.filter(m => m && typeof m.mensaje === "string");
+          allMessages.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+          messagesUpdatedAt = Date.now();
+          try {
+            sessionStorage.setItem(MESSAGE_CACHE_KEY, JSON.stringify({
+              fecha: messagesUpdatedAt, mensajes: allMessages
+            }));
+          } catch (error) {
+            console.warn("No se pudo guardar la caché de mensajes:", error);
+          }
+          renderMessages();
+        } catch (error) {
+          console.warn("Mensajes:", error);
+          if (!messagesUpdatedAt) messagesList.textContent = "No se pudieron cargar los mensajes.";
+        }
+      })();
+      try { await messagesRequest; }
+      finally { messagesRequest = null; }
     }
     // Captura la rueda antes del control global de volumen.
     document.addEventListener("wheel", (event) => {
@@ -380,7 +413,9 @@
         messageText.value = "";
         messageSendStatus.textContent = "";
         showMessagesView(false);
-        await loadMessages();
+        messagesUpdatedAt = 0;
+        sessionStorage.removeItem(MESSAGE_CACHE_KEY);
+        await loadMessages(true);
       } catch (error) {
         console.warn("No se pudo enviar el mensaje", error);
         messageSendStatus.textContent = "No se pudo enviar. Revisá tu conexión e intentá otra vez.";
@@ -393,7 +428,7 @@
       messagesListView.hidden = compose;
       messagesComposeView.hidden = !compose;
     }
-    function setMessagesOpen(open) {
+    function setMessagesOpen(open, restoreFocus = true) {
       messagesPanel.classList.toggle("is-open", open);
       messagesPanel.setAttribute("aria-hidden", String(!open));
       messagesPanel.inert = !open;
@@ -403,10 +438,15 @@
         showMessagesView(false);
         loadMessages();
         messagesCloseBtn.focus();
-      } else {
+      } else if (restoreFocus) {
         messagesToggleBtn.focus();
       }
     }
+    document.getElementById("powerBtn").addEventListener("click", () => {
+      if (messagesPanel.classList.contains("is-open")) setMessagesOpen(false, false);
+    });
+    // Precarga los mensajes sin bloquear el reproductor.
+    window.addEventListener("load", () => { loadMessages(); }, {once: true});
     messagesToggleBtn.addEventListener("click", () => setMessagesOpen(!messagesPanel.classList.contains("is-open")));
     messagesCloseBtn.addEventListener("click", () => setMessagesOpen(false));
     messagesComposeBtn.addEventListener("click", () => showMessagesView(true));
