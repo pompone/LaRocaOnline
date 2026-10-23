@@ -204,7 +204,8 @@
         </div>
         <div id="messagesListView" class="messages-view">
           <div id="messagesList" class="messages-list" aria-live="polite"><p class="messages-empty">Cargando mensajes...</p></div>
-          <button id="messagesMoreBtn" class="messages-action" type="button" hidden>Ver más mensajes</button>
+          <button id="messagesBackPageBtn" class="messages-action" type="button" hidden>← Volver a los más nuevos</button>
+          <button id="messagesMoreBtn" class="messages-action" type="button" hidden>Ver más mensajes →</button>
           <button id="messagesComposeBtn" class="messages-action" type="button">✉ Escribir mensaje</button>
         </div>
         <div id="messagesComposeView" class="messages-view" hidden>
@@ -270,6 +271,7 @@
 
     const messagesList = document.getElementById("messagesList");
     const messagesMoreBtn = document.getElementById("messagesMoreBtn");
+    const messagesBackPageBtn = document.getElementById("messagesBackPageBtn");
     const messagesApi = "https://script.google.com/macros/s/AKfycbx0-d8po6vpmYUR62a36cSUv1dWK_cEFmFVp6CwUE6h3yPJcEVzoB_HOIGk-P7rOd6tlw/exec";
     const MESSAGE_CACHE_KEY = "la-roca-mensajes-v1";
     const MESSAGE_CACHE_TTL = 2 * 60 * 1000;
@@ -291,6 +293,7 @@
       const hasOlder = (messagesPage + 1) * MESSAGES_PAGE_SIZE < allMessages.length;
       const atBottom = messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight <= 24;
       messagesMoreBtn.hidden = !hasOlder || !atBottom;
+      messagesBackPageBtn.hidden = messagesPage === 0 || !atBottom;
     }
     messagesList.addEventListener("scroll", updateMoreButton, {passive: true});
     function renderMessages() {
@@ -336,6 +339,7 @@
       else {
         messagesList.textContent = "Cargando mensajes...";
         messagesMoreBtn.hidden = true;
+        messagesBackPageBtn.hidden = true;
       }
       if (messagesRequest) return messagesRequest;
       messagesRequest = (async () => {
@@ -376,6 +380,12 @@
     messagesMoreBtn.addEventListener("click", () => {
       messagesPage += 1;
       messagesList.scrollTop = 0;
+      renderMessages();
+      messagesList.scrollTop = 0;
+      updateMoreButton();
+    });
+    messagesBackPageBtn.addEventListener("click", () => {
+      messagesPage = Math.max(0, messagesPage - 1);
       renderMessages();
       messagesList.scrollTop = 0;
       updateMoreButton();
