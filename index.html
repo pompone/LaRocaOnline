@@ -12,7 +12,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=31" />
+  <link rel="stylesheet" href="./style.css?v=32" />
 </head>
 
 <body class="power-off">
@@ -187,7 +187,7 @@
       </div>
 
 
-      <section id="messagesPanel" class="messages-panel" aria-label="Mensajes de La Roca Online" hidden>
+      <section id="messagesPanel" class="messages-panel" aria-label="Mensajes de La Roca Online" aria-hidden="true" inert>
         <h2>Mensajes de La Roca Online</h2>
         <p class="messages-notice">Próximamente podrás enviar mensajes</p>
         <div class="messages-form">
@@ -235,8 +235,10 @@
     const messagesToggleBtn = document.getElementById("messagesToggleBtn");
     const messagesPanel = document.getElementById("messagesPanel");
     messagesToggleBtn.addEventListener("click", () => {
-      const opening = messagesPanel.hidden;
-      messagesPanel.hidden = !opening;
+      const opening = !messagesPanel.classList.contains("is-open");
+      messagesPanel.classList.toggle("is-open", opening);
+      messagesPanel.setAttribute("aria-hidden", String(!opening));
+      messagesPanel.inert = !opening;
       messagesToggleBtn.setAttribute("aria-expanded", String(opening));
       messagesToggleBtn.setAttribute("aria-label", opening ? "Ocultar mensajes" : "Mostrar mensajes");
     });
