@@ -326,8 +326,10 @@
           headers: {"Content-Type": "text/plain;charset=UTF-8"},
           body: JSON.stringify({usuario, mensaje})
         });
-        messageSendStatus.textContent = "Solicitud enviada. Volvé al listado para comprobar si se publicó.";
         messageText.value = "";
+        messageSendStatus.textContent = "";
+        showMessagesView(false);
+        await loadMessages();
       } catch (error) {
         console.warn("No se pudo enviar el mensaje", error);
         messageSendStatus.textContent = "No se pudo enviar. Revisá tu conexión e intentá otra vez.";
