@@ -12,7 +12,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=32" />
+  <link rel="stylesheet" href="./style.css?v=33" />
 </head>
 
 <body class="power-off">
@@ -187,15 +187,29 @@
       </div>
 
 
-      <section id="messagesPanel" class="messages-panel" aria-label="Mensajes de La Roca Online" aria-hidden="true" inert>
-        <h2>Mensajes de La Roca Online</h2>
-        <p class="messages-notice">Próximamente podrás enviar mensajes</p>
-        <div class="messages-form">
-          <label for="messageName">Tu nombre</label>
-          <input id="messageName" type="text" placeholder="Escribí tu nombre" disabled />
-          <label for="messageText">Tu mensaje</label>
-          <textarea id="messageText" rows="3" placeholder="Escribí tu mensaje" disabled></textarea>
-          <button type="button" disabled>Enviar mensaje</button>
+      <section id="messagesPanel" class="messages-panel" role="dialog" aria-modal="true" aria-labelledby="messagesTitle" aria-hidden="true" inert>
+        <div class="messages-header">
+          <h2 id="messagesTitle">Mensajes de La Roca Online</h2>
+          <button id="messagesCloseBtn" class="messages-close" type="button" aria-label="Cerrar mensajes" title="Cerrar">×</button>
+        </div>
+        <div id="messagesListView" class="messages-view">
+          <div class="messages-list" aria-live="polite">
+            <p class="messages-empty">Próximamente vas a poder leer los mensajes de los oyentes acá.</p>
+          </div>
+          <button id="messagesComposeBtn" class="messages-action" type="button">✉ Escribir mensaje</button>
+        </div>
+        <div id="messagesComposeView" class="messages-view" hidden>
+          <p class="messages-notice">Próximamente podrás enviar mensajes</p>
+          <div class="messages-form">
+            <label for="messageName">Tu nombre</label>
+            <input id="messageName" type="text" placeholder="Escribí tu nombre" disabled />
+            <label for="messageText">Tu mensaje</label>
+            <textarea id="messageText" rows="3" placeholder="Escribí tu mensaje" disabled></textarea>
+            <div class="messages-form-actions">
+              <button id="messagesBackBtn" class="messages-back" type="button">← Volver</button>
+              <button type="button" disabled>Enviar mensaje</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -234,13 +248,35 @@
   <script>
     const messagesToggleBtn = document.getElementById("messagesToggleBtn");
     const messagesPanel = document.getElementById("messagesPanel");
-    messagesToggleBtn.addEventListener("click", () => {
-      const opening = !messagesPanel.classList.contains("is-open");
-      messagesPanel.classList.toggle("is-open", opening);
-      messagesPanel.setAttribute("aria-hidden", String(!opening));
-      messagesPanel.inert = !opening;
-      messagesToggleBtn.setAttribute("aria-expanded", String(opening));
-      messagesToggleBtn.setAttribute("aria-label", opening ? "Ocultar mensajes" : "Mostrar mensajes");
+    const messagesCloseBtn = document.getElementById("messagesCloseBtn");
+    const messagesListView = document.getElementById("messagesListView");
+    const messagesComposeView = document.getElementById("messagesComposeView");
+    const messagesComposeBtn = document.getElementById("messagesComposeBtn");
+    const messagesBackBtn = document.getElementById("messagesBackBtn");
+
+    function showMessagesView(compose) {
+      messagesListView.hidden = compose;
+      messagesComposeView.hidden = !compose;
+    }
+    function setMessagesOpen(open) {
+      messagesPanel.classList.toggle("is-open", open);
+      messagesPanel.setAttribute("aria-hidden", String(!open));
+      messagesPanel.inert = !open;
+      messagesToggleBtn.setAttribute("aria-expanded", String(open));
+      messagesToggleBtn.setAttribute("aria-label", open ? "Ocultar mensajes" : "Mostrar mensajes");
+      if (open) {
+        showMessagesView(false);
+        messagesCloseBtn.focus();
+      } else {
+        messagesToggleBtn.focus();
+      }
+    }
+    messagesToggleBtn.addEventListener("click", () => setMessagesOpen(!messagesPanel.classList.contains("is-open")));
+    messagesCloseBtn.addEventListener("click", () => setMessagesOpen(false));
+    messagesComposeBtn.addEventListener("click", () => showMessagesView(true));
+    messagesBackBtn.addEventListener("click", () => showMessagesView(false));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && messagesPanel.classList.contains("is-open")) setMessagesOpen(false);
     });
   </script>
   <audio id="radioAudio" preload="none"></audio>
