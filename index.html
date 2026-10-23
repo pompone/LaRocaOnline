@@ -12,7 +12,17 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=36" />
+  <link rel="stylesheet" href="./style.css?v=37" />
+  <style>
+    /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
+    #messagesCloseBtn:hover, #messagesCloseBtn:active {
+      background: #c62828 !important;
+      border-color: #ff5252 !important;
+      color: #fff !important;
+    }
+    #messagesCloseBtn { cursor: pointer; }
+    #messagesList { overscroll-behavior: contain; }
+  </style>
 </head>
 
 <body class="power-off">
@@ -297,6 +307,16 @@
         messagesList.textContent = "No se pudieron cargar los mensajes.";
       }
     }
+    // Captura la rueda antes del control global de volumen.
+    document.addEventListener("wheel", (event) => {
+      if (!messagesPanel.classList.contains("is-open") || event.ctrlKey) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const scrollArea = messagesComposeView.hidden
+        ? document.getElementById("messagesList")
+        : messagesPanel;
+      if (scrollArea) scrollArea.scrollTop += event.deltaY;
+    }, {capture: true, passive: false});
     messagesMoreBtn.addEventListener("click", () => {
       shownMessages += 10;
       renderMessages();
@@ -374,7 +394,7 @@
     };
   </script>
   <script async src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
-  <script src="./script.js?v=15"></script>
+  <script src="./script.js?v=16"></script>
   <script type="module" src="./online.js?v=2"></script>
 </body>
 </html>
