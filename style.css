@@ -1151,3 +1151,11 @@ body.power-off .icon-btn.power {
 .messages-close { cursor: pointer; transition: background .2s ease, border-color .2s ease, color .2s ease; }
 .messages-close:hover { background: #b91c1c; border-color: #ef4444; color: #fff; }
 .messages-close:focus-visible { outline: 2px solid #ef4444; outline-offset: 3px; }
+
+/* Selector de emojis en el formulario de mensajes */
+.emoji-picker-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.messages-form .emoji-toggle { justify-self: start; opacity: 1; cursor: pointer; border: 1px solid rgba(255,209,107,.7); border-radius: 10px; padding: 7px 12px; background: rgba(255,255,255,.12); color: #fff; font: inherit; }
+.emoji-picker { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; width: 100%; padding: 9px; border: 1px solid rgba(255,209,107,.4); border-radius: 12px; background: #17365f; }
+.emoji-picker[hidden] { display: none; }
+.messages-form .emoji-choice { justify-self: stretch; opacity: 1; cursor: pointer; border: 0; border-radius: 8px; background: rgba(255,255,255,.09); color: #fff; padding: 8px 0; font-size: 1.35rem; }
+.messages-form .emoji-choice:hover { background: rgba(255,209,107,.25); }
