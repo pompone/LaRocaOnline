@@ -461,6 +461,8 @@
       messagesComposeView.hidden = !compose;
     }
     function setMessagesOpen(open, restoreFocus = true) {
+      // Los mensajes solo pueden abrirse con la radio encendida.
+      if (open && document.body.classList.contains("power-off")) return;
       messagesPanel.classList.toggle("is-open", open);
       messagesPanel.setAttribute("aria-hidden", String(!open));
       messagesPanel.inert = !open;
