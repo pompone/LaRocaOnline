@@ -309,10 +309,15 @@
     async function sendMessageLike(message, button) {
       if (!likeDeviceId || !message.id || wasLikedLocally(message.id) || pendingLikes.has(message.id)) return;
       pendingLikes.add(message.id);
+      const previousLikes = Number(message.likes) || 0;
+      // Feedback inmediato, sin textos intermedios ni cambios de vista.
+      message.likes = previousLikes + 1;
+      button.textContent = "❤️ " + message.likes;
+      button.setAttribute("aria-pressed", "true");
+      button.setAttribute("aria-label", "Ya diste Me gusta");
       button.disabled = true;
-      button.textContent = "❤️ Enviando...";
       try {
-        // La respuesta no-cors es opaca: la solicitud no confirma el registro.
+        // La respuesta no-cors es opaca: no confirma el registro en el servidor.
         await fetch(messagesApi, {
           method: "POST",
           mode: "no-cors",
@@ -320,15 +325,14 @@
           body: JSON.stringify({accion:"like",mensajeId:message.id,dispositivoId:likeDeviceId})
         });
         markLikedLocally(message.id);
-        message.likes = (Number(message.likes) || 0) + 1;
-        button.textContent = "❤️ " + message.likes;
-        button.setAttribute("aria-pressed", "true");
-        // Obtener el contador real del servidor cuando se actualice la página.
         messagesUpdatedAt = 0;
       } catch (error) {
         console.warn("No se pudo enviar el Like", error);
+        message.likes = previousLikes;
+        button.textContent = "🤍 " + previousLikes;
+        button.setAttribute("aria-pressed", "false");
+        button.setAttribute("aria-label", "Dar Me gusta");
         button.disabled = false;
-        button.textContent = "🤍 " + (Number(message.likes) || 0);
       } finally {
         pendingLikes.delete(message.id);
       }
@@ -376,7 +380,7 @@
         likeButton.style.cssText = "background:transparent;color:inherit;border:1px solid #ffffff55;border-radius:20px;padding:5px 12px;cursor:pointer;font:inherit;font-size:.9rem";
         likeButton.disabled = alreadyLiked || !likeDeviceId || pendingLikes.has(message.id);
         if (likeButton.disabled) likeButton.style.opacity = ".75";
-        likeButton.addEventListener("click", () => { void sendMessageLike(message, likeButton); });
+        likeButton.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); void sendMessageLike(message, likeButton); });
         entry.append(heading, body, likeButton);
         messagesList.append(entry);
       }
