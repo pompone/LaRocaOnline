@@ -281,6 +281,58 @@
     let messagesUpdatedAt = 0;
     let messagesRequest = null;
     let messagesGeneration = 0;
+    // Identificador local anónimo: un Like por navegador y mensaje.
+    function getLikeDeviceId() {
+      try {
+        const key = "laroca_like_device_id";
+        let id = localStorage.getItem(key);
+        if (!id) {
+          id = crypto.randomUUID();
+          localStorage.setItem(key, id);
+        }
+        return id;
+      } catch (error) {
+        console.warn("No se pudo guardar el identificador de Likes", error);
+        return null;
+      }
+    }
+    const likeDeviceId = getLikeDeviceId();
+    const pendingLikes = new Set();
+    function wasLikedLocally(id) {
+      try { return localStorage.getItem("laroca_liked_" + id) === "1"; }
+      catch (error) { return false; }
+    }
+    function markLikedLocally(id) {
+      try { localStorage.setItem("laroca_liked_" + id, "1"); }
+      catch (error) { console.warn("No se pudo guardar el Like localmente", error); }
+    }
+    async function sendMessageLike(message, button) {
+      if (!likeDeviceId || !message.id || wasLikedLocally(message.id) || pendingLikes.has(message.id)) return;
+      pendingLikes.add(message.id);
+      button.disabled = true;
+      button.textContent = "❤️ Enviando...";
+      try {
+        // La respuesta no-cors es opaca: la solicitud no confirma el registro.
+        await fetch(messagesApi, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {"Content-Type": "text/plain;charset=UTF-8"},
+          body: JSON.stringify({accion:"like",mensajeId:message.id,dispositivoId:likeDeviceId})
+        });
+        markLikedLocally(message.id);
+        message.likes = (Number(message.likes) || 0) + 1;
+        button.textContent = "❤️ " + message.likes;
+        button.setAttribute("aria-pressed", "true");
+        // Obtener el contador real del servidor cuando se actualice la página.
+        messagesUpdatedAt = 0;
+      } catch (error) {
+        console.warn("No se pudo enviar el Like", error);
+        button.disabled = false;
+        button.textContent = "🤍 " + (Number(message.likes) || 0);
+      } finally {
+        pendingLikes.delete(message.id);
+      }
+    }
     function updateMoreButton() {
       const atBottom = messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight <= 24;
       messagesMoreBtn.hidden = !messagesHasMore || !atBottom;
@@ -315,7 +367,17 @@
         const body = document.createElement("p");
         body.style.whiteSpace = "pre-wrap";
         body.textContent = message.mensaje;
-        entry.append(heading, body);
+        const likeButton = document.createElement("button");
+        likeButton.type = "button";
+        const alreadyLiked = wasLikedLocally(message.id);
+        likeButton.textContent = (alreadyLiked ? "❤️ " : "🤍 ") + (Number(message.likes) || 0);
+        likeButton.setAttribute("aria-label", alreadyLiked ? "Ya diste Me gusta" : "Dar Me gusta");
+        likeButton.setAttribute("aria-pressed", String(alreadyLiked));
+        likeButton.style.cssText = "background:transparent;color:inherit;border:1px solid #ffffff55;border-radius:20px;padding:5px 12px;cursor:pointer;font:inherit;font-size:.9rem";
+        likeButton.disabled = alreadyLiked || !likeDeviceId || pendingLikes.has(message.id);
+        if (likeButton.disabled) likeButton.style.opacity = ".75";
+        likeButton.addEventListener("click", () => { void sendMessageLike(message, likeButton); });
+        entry.append(heading, body, likeButton);
         messagesList.append(entry);
       }
       messagesList.scrollTop = previousScroll;
