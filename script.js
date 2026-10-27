@@ -1,5 +1,5 @@
 const STREAM_URL =
-  "https://ssl.radiosnethosting.com/index.php?port=8016";
+  "https://stream.radiosnethosting.com:8016/stream";
 const STATION_NAME = "La Roca Online";
 
 const audio = document.getElementById("radioAudio");
