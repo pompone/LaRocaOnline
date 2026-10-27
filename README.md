@@ -4,7 +4,7 @@ Proyecto web/PWA inspirado en la estructura de Radios_VR.
 
 ## Stream configurado
 
-`https://ssl.radiosnethosting.com/index.php?port=8016`
+`https://stream.radiosnethosting.com:8016/stream`
 
 ## Funciones
 
@@ -39,7 +39,7 @@ Proyecto web/PWA inspirado en la estructura de Radios_VR.
 En `script.js`:
 
 ```js
-const STREAM_URL = "https://ssl.radiosnethosting.com/index.php?port=8016";
+const STREAM_URL = "https://stream.radiosnethosting.com:8016/stream";
 const STATION_NAME = "La Roca Online";
 ```
 
