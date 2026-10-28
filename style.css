@@ -1181,3 +1181,11 @@ body.power-off .icon-btn.power {
 .donation-details small { font-size:.73rem; color:#d5e1f3; }
 @keyframes donation-appear { from {opacity:0;transform:translateY(-8px) scale(.98)} to {opacity:1;transform:translateY(0) scale(1)} }
 @media (prefers-reduced-motion:reduce) { .donation-details {animation:none} }
+
+
+/* Ajuste de ubicación: botón compacto alineado al margen izquierdo */
+.donation-section { align-items:flex-start; text-align:left; margin:9px 0 2px; gap:9px; }
+.donation-toggle { padding:7px 12px; gap:6px; font-size:.78rem; border-radius:8px; box-shadow:0 2px 8px #0002; }
+.donation-toggle span { font-size:1.1em; }
+.donation-details { align-items:center; text-align:center; padding:14px; }
+@media (max-width:600px) { .donation-section { margin-top:8px; } }
