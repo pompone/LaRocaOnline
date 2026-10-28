@@ -1159,3 +1159,25 @@ body.power-off .icon-btn.power {
 .emoji-picker[hidden] { display: none; }
 .messages-form .emoji-choice { justify-self: stretch; opacity: 1; cursor: pointer; border: 0; border-radius: 8px; background: rgba(255,255,255,.09); color: #fff; padding: 8px 0; font-size: 1.35rem; }
 .messages-form .emoji-choice:hover { background: rgba(255,209,107,.25); }
+
+
+/* Donaciones: botón dorado centrado y panel de alias */
+.donation-section { display:flex; flex-direction:column; align-items:center; gap:12px; margin:16px auto 4px; width:100%; text-align:center; }
+.donation-toggle { display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:11px 22px; border:1px solid #f6d58c; border-radius:10px; background:#e8bd69; color:#142b52; font:inherit; font-weight:750; cursor:pointer; box-shadow:0 3px 14px #0002; transition:transform .2s,filter .2s; }
+.donation-toggle span { font-size:1.3em; line-height:1; }
+.donation-toggle:hover { filter:brightness(1.08); transform:translateY(-2px); }
+.donation-toggle:focus-visible,.donation-copy:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+.donation-details { width:min(100%,390px); padding:18px; border:1px solid #e8bd6970; border-radius:15px; background:#203b64; color:#e2eaf7; display:flex; flex-direction:column; align-items:center; gap:11px; animation:donation-appear .35s ease-out both; }
+.donation-details[hidden] { display:none!important; }
+.donation-details p { margin:0; font-size:.87rem; line-height:1.5; }
+.donation-label { font-size:.7rem; letter-spacing:.07em; color:#b8c8e0; }
+.donation-alias { font-size:1.5rem; color:white; user-select:all; }
+.donation-copy { padding:11px 20px; border:0; border-radius:9px; background:#e8bd69; color:#142b52; font:inherit; font-weight:750; cursor:pointer; transition:background .25s,color .25s,transform .25s; }
+.donation-copy.is-copied { background:#16834b; color:white; transform:scale(1.04); }
+.donation-feedback { min-height:1em; font-size:.75rem; color:#86efac; }
+.donation-bank { display:flex; flex-direction:column; align-items:center; gap:5px; padding-top:11px; width:100%; border-top:1px solid #ffffff30; font-size:.78rem; color:#d5e1f3; }
+.donation-brand { display:inline-block; padding:5px 11px; background:white; border-radius:8px; color:#fa681b; font-weight:850; font-size:1.05rem; letter-spacing:-.03em; }
+.donation-brand b { font-size:1.3em; }
+.donation-details small { font-size:.73rem; color:#d5e1f3; }
+@keyframes donation-appear { from {opacity:0;transform:translateY(-8px) scale(.98)} to {opacity:1;transform:translateY(0) scale(1)} }
+@media (prefers-reduced-motion:reduce) { .donation-details {animation:none} }
