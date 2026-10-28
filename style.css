@@ -1189,3 +1189,19 @@ body.power-off .icon-btn.power {
 .donation-toggle span { font-size:1.1em; }
 .donation-details { align-items:center; text-align:center; padding:14px; }
 @media (max-width:600px) { .donation-section { margin-top:8px; } }
+
+
+/* Mismo criterio visual del encendido: apagada = donación inactiva */
+body.power-off .donation-toggle,
+.donation-toggle:disabled {
+  background:#49566b;
+  color:#aeb7c6;
+  border-color:#657184;
+  box-shadow:none;
+  opacity:.5;
+  cursor:not-allowed;
+  filter:grayscale(1);
+  transform:none;
+}
+body.power-off .donation-toggle:hover,
+.donation-toggle:disabled:hover { filter:grayscale(1); transform:none; }
