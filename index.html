@@ -32,7 +32,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=39" />
+  <link rel="stylesheet" href="./style.css?v=40" />
   <style>
     /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
     #messagesCloseBtn:hover, #messagesCloseBtn:active {
@@ -683,7 +683,21 @@
       const copy = document.getElementById("donationCopy");
       const feedback = document.getElementById("donationFeedback");
       let resetTimer;
+      const syncDonationPower = () => {
+        const off = document.body.classList.contains("power-off");
+        toggle.disabled = off;
+        if (off) {
+          details.hidden = true;
+          toggle.setAttribute("aria-expanded", "false");
+        }
+      };
+      syncDonationPower();
+      document.getElementById("powerBtn").addEventListener("click", () => {
+        // El control principal actualiza power-off en su propio manejador.
+        syncDonationPower();
+      });
       toggle.addEventListener("click", () => {
+        if (document.body.classList.contains("power-off")) return;
         const opening = details.hidden;
         details.hidden = !opening;
         toggle.setAttribute("aria-expanded", String(opening));
