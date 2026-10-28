@@ -32,7 +32,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=40" />
+  <link rel="stylesheet" href="./style.css?v=41" />
   <style>
     /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
     #messagesCloseBtn:hover, #messagesCloseBtn:active {
@@ -299,18 +299,22 @@
         <button id="donationToggle" class="donation-toggle" type="button" aria-expanded="false" aria-controls="donationDetails">
           <span aria-hidden="true">♡</span> Hacer una donación
         </button>
-        <div id="donationDetails" class="donation-details" hidden>
-          <p>Tu colaboración voluntaria nos ayuda a seguir transmitiendo.</p>
-          <span class="donation-label">ALIAS PARA TRANSFERENCIAS</span>
-          <strong class="donation-alias">Laroca.radio</strong>
-          <button id="donationCopy" class="donation-copy" type="button">Copiar alias</button>
-          <span id="donationFeedback" class="donation-feedback" role="status" aria-live="polite"></span>
-          <div class="donation-bank" aria-label="Cuenta de Naranja X">
-            <span class="donation-brand">Naranja <b>X</b></span>
-            <span>Cuenta receptora: Naranja X</span>
-          </div>
-          <small>Titular: Carlos Gabriel Carvajal</small>
+      </section>
+      <section id="donationDetails" class="donation-details" role="dialog" aria-modal="true" aria-labelledby="donationTitle" aria-hidden="true" inert>
+        <div class="donation-header">
+          <h2 id="donationTitle">Colaborá con La Roca Online</h2>
+          <button id="donationClose" class="donation-close" type="button" aria-label="Cerrar donaciones" title="Cerrar">×</button>
         </div>
+        <p>Tu colaboración voluntaria nos ayuda a seguir transmitiendo.</p>
+        <span class="donation-label">ALIAS PARA TRANSFERENCIAS</span>
+        <strong class="donation-alias">Laroca.radio</strong>
+        <button id="donationCopy" class="donation-copy" type="button">Copiar alias</button>
+        <span id="donationFeedback" class="donation-feedback" role="status" aria-live="polite"></span>
+        <div class="donation-bank" aria-label="Cuenta de Naranja X">
+          <span class="donation-brand">Naranja <b>X</b></span>
+          <span>Cuenta receptora: Naranja X</span>
+        </div>
+        <small>Titular: Carlos Gabriel Carvajal</small>
       </section>
 
       <footer class="ministry-footer">
@@ -683,24 +687,31 @@
       const copy = document.getElementById("donationCopy");
       const feedback = document.getElementById("donationFeedback");
       let resetTimer;
+      const close = document.getElementById("donationClose");
+      const setDonationOpen = (open, restoreFocus = true) => {
+        if (open && document.body.classList.contains("power-off")) return;
+        details.classList.toggle("is-open", open);
+        details.setAttribute("aria-hidden", String(!open));
+        details.inert = !open;
+        toggle.setAttribute("aria-expanded", String(open));
+        if (open) close.focus();
+        else if (restoreFocus) toggle.focus();
+      };
       const syncDonationPower = () => {
         const off = document.body.classList.contains("power-off");
         toggle.disabled = off;
-        if (off) {
-          details.hidden = true;
-          toggle.setAttribute("aria-expanded", "false");
-        }
+        if (off && details.classList.contains("is-open")) setDonationOpen(false, false);
       };
-      syncDonationPower();
-      document.getElementById("powerBtn").addEventListener("click", () => {
-        // El control principal actualiza power-off en su propio manejador.
-        syncDonationPower();
+      // El estado lo actualiza script.js: observar la clase evita depender
+      // del orden de los listeners del botón de encendido.
+      new MutationObserver(syncDonationPower).observe(document.body, {
+        attributes: true, attributeFilter: ["class"]
       });
-      toggle.addEventListener("click", () => {
-        if (document.body.classList.contains("power-off")) return;
-        const opening = details.hidden;
-        details.hidden = !opening;
-        toggle.setAttribute("aria-expanded", String(opening));
+      syncDonationPower();
+      toggle.addEventListener("click", () => setDonationOpen(!details.classList.contains("is-open")));
+      close.addEventListener("click", () => setDonationOpen(false));
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && details.classList.contains("is-open")) setDonationOpen(false);
       });
       copy.addEventListener("click", async () => {
         try {
