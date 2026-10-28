@@ -32,7 +32,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=38" />
+  <link rel="stylesheet" href="./style.css?v=39" />
   <style>
     /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
     #messagesCloseBtn:hover, #messagesCloseBtn:active {
@@ -294,6 +294,24 @@
           <strong id="onlineCount">—</strong>
         </div>
       </div>
+
+      <section class="donation-section" aria-label="Colaborar con La Roca Online">
+        <button id="donationToggle" class="donation-toggle" type="button" aria-expanded="false" aria-controls="donationDetails">
+          <span aria-hidden="true">♡</span> Hacer una donación
+        </button>
+        <div id="donationDetails" class="donation-details" hidden>
+          <p>Tu colaboración voluntaria nos ayuda a seguir transmitiendo.</p>
+          <span class="donation-label">ALIAS PARA TRANSFERENCIAS</span>
+          <strong class="donation-alias">Laroca.radio</strong>
+          <button id="donationCopy" class="donation-copy" type="button">Copiar alias</button>
+          <span id="donationFeedback" class="donation-feedback" role="status" aria-live="polite"></span>
+          <div class="donation-bank" aria-label="Cuenta de Naranja X">
+            <span class="donation-brand">Naranja <b>X</b></span>
+            <span>Cuenta receptora: Naranja X</span>
+          </div>
+          <small>Titular: Carlos Gabriel Carvajal</small>
+        </div>
+      </section>
 
       <footer class="ministry-footer">
         <img
@@ -657,6 +675,48 @@
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && messagesPanel.classList.contains("is-open")) setMessagesOpen(false);
     });
+  </script>
+  <script>
+    (() => {
+      const toggle = document.getElementById("donationToggle");
+      const details = document.getElementById("donationDetails");
+      const copy = document.getElementById("donationCopy");
+      const feedback = document.getElementById("donationFeedback");
+      let resetTimer;
+      toggle.addEventListener("click", () => {
+        const opening = details.hidden;
+        details.hidden = !opening;
+        toggle.setAttribute("aria-expanded", String(opening));
+      });
+      copy.addEventListener("click", async () => {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText("Laroca.radio");
+          } else {
+            const input = document.createElement("textarea");
+            input.value = "Laroca.radio";
+            input.style.position = "fixed";
+            input.style.opacity = "0";
+            document.body.appendChild(input);
+            input.select();
+            const success = document.execCommand("copy");
+            input.remove();
+            if (!success) throw new Error("No se pudo copiar");
+          }
+          copy.textContent = "✓ ¡Copiado!";
+          copy.classList.add("is-copied");
+          feedback.textContent = "Alias copiado. Abrí tu banco o billetera para transferir.";
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => {
+            copy.textContent = "Copiar alias";
+            copy.classList.remove("is-copied");
+            feedback.textContent = "";
+          }, 2400);
+        } catch (error) {
+          feedback.textContent = "No se pudo copiar automáticamente. Seleccioná el alias para copiarlo.";
+        }
+      });
+    })();
   </script>
   <audio id="radioAudio" preload="none"></audio>
 
