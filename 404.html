@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#24477e">
+<meta name="robots" content="noindex">
+<title>404 | La Roca Online</title>
+<link rel="icon" href="/icons/favicon.ico">
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,#35649a 0,#172e54 48%,#0c1b34 100%);color:#fff;text-align:center}
+main{width:min(100%,480px);padding:36px 25px;border:1px solid #ffffff29;border-radius:28px;background:#122b50e8;box-shadow:0 24px 60px #0005}
+.logo{display:block;width:118px;height:118px;object-fit:contain;margin:0 auto 16px;filter:drop-shadow(0 6px 14px #0005)}
+.eyebrow{color:#e8bd69;font-weight:700;letter-spacing:.15em;font-size:.75rem;text-transform:uppercase}
+h1{font-size:clamp(4.5rem,20vw,7rem);line-height:1;margin:12px 0;color:#e8bd69}
+h2{font-size:clamp(1.3rem,5vw,1.7rem);margin:8px 0 12px}
+p{color:#d8e4f5;line-height:1.65;margin:0 auto 25px;max-width:34ch}
+a.button{display:inline-flex;align-items:center;justify-content:center;padding:14px 24px;background:#e8bd69;color:#142b52;border-radius:12px;text-decoration:none;font-weight:800;transition:transform .2s,filter .2s}
+a.button:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.signal{display:flex;justify-content:center;align-items:end;gap:5px;height:28px;margin:0 auto 18px}
+.signal span{width:5px;height:11px;border-radius:4px;background:#e8bd69;animation:pulse 1.1s ease-in-out infinite alternate}
+.signal span:nth-child(2),.signal span:nth-child(4){height:22px;animation-delay:.2s}
+.signal span:nth-child(3){height:28px;animation-delay:.4s}
+@keyframes pulse{to{height:5px;opacity:.45}}
+@media(prefers-reduced-motion:reduce){.signal span{animation:none}}
+small{display:block;color:#aebfda;margin-top:26px}
+</style>
+</head>
+<body>
+<main>
+<img class="logo" src="/icons/logo-la-roca.png" alt="Logo de La Roca Online">
+<div class="eyebrow">La Roca Online</div>
+<h1>404</h1>
+<div class="signal" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+<h2>¡Ups! Parece que perdiste la señal.</h2>
+<p>La página que buscás no existe, pero La Roca Online sigue transmitiendo.</p>
+<a class="button" href="/">Volver a la radio</a>
+<small>Ministerio Catedral Roca a las Naciones</small>
+</main>
+</body>
+</html>
