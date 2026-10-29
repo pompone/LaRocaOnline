@@ -885,6 +885,23 @@ body.power-off .icon-btn.power {
   }
 }
 
+/* Ajuste de altura para PWA de escritorio: evita desbordamientos leves
+   sin recortar contenido ni modificar la presentación móvil. */
+@media (min-width: 601px) and (max-height: 780px) {
+  .radio-card {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .header-logo { height: clamp(86px, 14dvh, 112px); }
+  .display { height: clamp(150px, 25dvh, 210px); margin-top: 6px; }
+  .equalizer { height: min(100px, 14dvh); }
+  .main-controls { margin-top: 6px; }
+  .info-strip { margin-top: 5px; }
+  .ministry-footer { margin-top: 6px; padding-top: 6px; }
+  .developer-credit { margin-top: 5px; }
+  .donation-section { margin-top: 5px; margin-bottom: 0; }
+}
+
 @media (max-width: 600px) {
   html {
     background: #142b52;
