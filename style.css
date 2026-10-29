@@ -1079,14 +1079,15 @@ body.power-off .icon-btn.power {
 @media (max-width: 600px) {
   .sound-rays {
     top: 31%;
-    width: 15%;
+    z-index: 2;
+    width: 12%;
     height: 74px;
     gap: 4px;
-    opacity: .65;
+    opacity: .85;
     pointer-events: none;
   }
-  .sound-rays-left { left: 1%; }
-  .sound-rays-right { right: 1%; }
+  .sound-rays-left { left: 0; }
+  .sound-rays-right { right: 0; }
   .sound-rays i {
     width: 2px;
     height: 21px;
