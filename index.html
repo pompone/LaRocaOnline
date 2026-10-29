@@ -259,6 +259,7 @@
           <button id="messagesCloseBtn" class="messages-close" type="button" aria-label="Cerrar mensajes" title="Cerrar">×</button>
         </div>
         <div id="messagesListView" class="messages-view">
+          <p id="messageListFeedback" class="messages-notice" role="status" aria-live="polite" hidden></p>
           <div id="messagesList" class="messages-list" aria-live="polite"><p class="messages-empty">Cargando mensajes...</p></div>
           <button id="messagesBackPageBtn" class="messages-action" type="button" hidden>← Volver a los más nuevos</button>
           <button id="messagesMoreBtn" class="messages-action" type="button" hidden>Ver más mensajes →</button>
@@ -581,6 +582,7 @@
     const messageText = document.getElementById("messageText");
     const messageSendBtn = document.getElementById("messageSendBtn");
     const messageSendStatus = document.getElementById("messageSendStatus");
+    const messageListFeedback = document.getElementById("messageListFeedback");
     const emojiToggleBtn = document.getElementById("emojiToggleBtn");
     const emojiPicker = document.getElementById("emojiPicker");
     const emojis = ["🙏","❤️","🙌","😊","😂","😍","🔥","✨","🕊️","📖","🎶","👏","💙","🥰","👍","🎉","🌟","🤗","💪","😇"];
@@ -608,34 +610,68 @@
       emojiPicker.hidden = !emojiPicker.hidden;
       emojiToggleBtn.setAttribute("aria-expanded",String(!emojiPicker.hidden));
     });
+    // Validación HTML5 complementada con mensajes específicos y sin espacios vacíos.
+    function validateMessageFields() {
+      const usuario = messageName.value.trim();
+      const mensaje = messageText.value.trim();
+      messageName.setCustomValidity(usuario ? "" : "Ingresá tu nombre");
+      messageText.setCustomValidity(mensaje ? "" : "Ingresá el mensaje");
+      messageName.setAttribute("aria-invalid", String(!usuario));
+      messageText.setAttribute("aria-invalid", String(!mensaje));
+      if (!usuario && !mensaje) messageSendStatus.textContent = "Ingresá tu nombre y el mensaje.";
+      else if (!usuario) messageSendStatus.textContent = "Ingresá tu nombre.";
+      else if (!mensaje) messageSendStatus.textContent = "Ingresá el mensaje.";
+      else messageSendStatus.textContent = "";
+      messageSendStatus.style.color = usuario && mensaje ? "" : "#ffb8b8";
+      return Boolean(usuario && mensaje);
+    }
+    for (const field of [messageName, messageText]) {
+      field.addEventListener("input", () => {
+        field.setCustomValidity("");
+        field.removeAttribute("aria-invalid");
+        if (messageSendStatus.textContent !== "Enviando...") {
+          messageSendStatus.textContent = "";
+        }
+      });
+    }
     let sendingMessage = false;
     messageSendBtn.addEventListener("click", async () => {
       if (sendingMessage) return;
-      const usuario = messageName.value.trim();
-      const mensaje = messageText.value.trim();
-      if (!usuario || usuario.length > 40 || !mensaje || mensaje.length > 500) {
-        messageSendStatus.textContent = "Ingresá tu nombre (máximo 40 caracteres) y un mensaje (máximo 500).";
+      messageListFeedback.hidden = true;
+      if (!validateMessageFields()) {
+        if (!messageName.value.trim()) messageName.focus();
+        else messageText.focus();
         return;
       }
+      const usuario = messageName.value.trim();
+      const mensaje = messageText.value.trim();
       sendingMessage = true;
       messageSendBtn.disabled = true;
+      messageSendStatus.style.color = "";
       messageSendStatus.textContent = "Enviando...";
       try {
-        // Apps Script no ofrece CORS para leer respuestas POST desde GitHub Pages.
-        // text/plain evita el preflight y no-cors permite enviar sin leer la respuesta.
+        // La respuesta no-cors es opaca: confirmar con el listado GET si aparece.
         await fetch(messagesApi, {
           method: "POST",
           mode: "no-cors",
           headers: {"Content-Type": "text/plain;charset=UTF-8"},
           body: JSON.stringify({usuario, mensaje})
         });
+        messagesPage = 0;
+        messagesUpdatedAt = 0;
+        await loadMessages(true);
+        const confirmed = allMessages.some(m => m.usuario === usuario && m.mensaje === mensaje);
+        messageListFeedback.textContent = confirmed
+          ? "✓ Enviado. Tu mensaje ya aparece publicado."
+          : "✓ Solicitud enviada. Aún no pudimos confirmar su publicación; revisá la lista en unos segundos.";
+        messageListFeedback.style.color = confirmed ? "#a8f0b7" : "#ffe0a0";
+        messageListFeedback.hidden = false;
         messageText.value = "";
         messageSendStatus.textContent = "";
         showMessagesView(false);
-        messagesUpdatedAt = 0;
-        await loadMessages(true);
       } catch (error) {
         console.warn("No se pudo enviar el mensaje", error);
+        messageSendStatus.style.color = "#ffb8b8";
         messageSendStatus.textContent = "No se pudo enviar. Revisá tu conexión e intentá otra vez.";
       } finally {
         sendingMessage = false;
@@ -676,7 +712,7 @@
     window.addEventListener("load", () => { loadMessages(); }, {once: true});
     messagesToggleBtn.addEventListener("click", () => setMessagesOpen(!messagesPanel.classList.contains("is-open")));
     messagesCloseBtn.addEventListener("click", () => setMessagesOpen(false));
-    messagesComposeBtn.addEventListener("click", () => showMessagesView(true));
+    messagesComposeBtn.addEventListener("click", () => { messageListFeedback.hidden = true; showMessagesView(true); });
     messagesBackBtn.addEventListener("click", () => showMessagesView(false));
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && messagesPanel.classList.contains("is-open")) setMessagesOpen(false);
