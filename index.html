@@ -253,19 +253,35 @@
       </div>
 
 
+  <style>
+    #messagesComposeView { position: relative; }
+    .message-success-overlay[hidden] { display: none !important; }
+    .message-success-overlay { position: absolute; inset: 0; z-index: 5; background: rgba(17,44,78,.97); border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: white; text-align: center; animation: messageSuccessIn .3s ease both; }
+    .message-success-circle { width: 82px; height: 82px; border: 3px solid #69e6a0; border-radius: 50%; display: grid; place-items: center; background: rgba(29,105,70,.35); color: #a0ffbf; font-size: 48px; line-height: 1; box-shadow: 0 0 22px rgba(57,233,140,.3); animation: messageCheckPop .45s cubic-bezier(.18,1.6,.35,1) both; }
+    .message-success-overlay strong { font-size: 1.35rem; }
+    .message-success-overlay small { color: #b9d7c6; }
+    @keyframes messageSuccessIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes messageCheckPop { from { transform: scale(.45); } to { transform: scale(1); } }
+    @media (prefers-reduced-motion: reduce) { .message-success-overlay, .message-success-circle { animation: none; } }
+  </style>
       <section id="messagesPanel" class="messages-panel" role="dialog" aria-modal="true" aria-labelledby="messagesTitle" aria-hidden="true" inert>
         <div class="messages-header">
           <h2 id="messagesTitle">Mensajes de La Roca Online</h2>
           <button id="messagesCloseBtn" class="messages-close" type="button" aria-label="Cerrar mensajes" title="Cerrar">×</button>
         </div>
         <div id="messagesListView" class="messages-view">
-          <p id="messageListFeedback" class="messages-notice" role="status" aria-live="polite" hidden></p>
+          
           <div id="messagesList" class="messages-list" aria-live="polite"><p class="messages-empty">Cargando mensajes...</p></div>
           <button id="messagesBackPageBtn" class="messages-action" type="button" hidden>← Volver a los más nuevos</button>
           <button id="messagesMoreBtn" class="messages-action" type="button" hidden>Ver más mensajes →</button>
           <button id="messagesComposeBtn" class="messages-action" type="button">✉ Escribir mensaje</button>
         </div>
         <div id="messagesComposeView" class="messages-view" hidden>
+          <div id="messageSuccessOverlay" class="message-success-overlay" role="status" aria-live="polite" hidden>
+            <div class="message-success-circle" aria-hidden="true">✓</div>
+            <strong>¡Mensaje enviado!</strong>
+            <small>Gracias por escribirnos 💙</small>
+          </div>
           <p class="messages-notice">Tu mensaje se publicará automáticamente. Escribí con respeto.</p>
           <p id="messageSendStatus" class="messages-notice" role="status" aria-live="polite"></p>
           <div class="messages-form">
@@ -582,7 +598,7 @@
     const messageText = document.getElementById("messageText");
     const messageSendBtn = document.getElementById("messageSendBtn");
     const messageSendStatus = document.getElementById("messageSendStatus");
-    const messageListFeedback = document.getElementById("messageListFeedback");
+    const messageSuccessOverlay = document.getElementById("messageSuccessOverlay");
     const emojiToggleBtn = document.getElementById("emojiToggleBtn");
     const emojiPicker = document.getElementById("emojiPicker");
     const emojis = ["🙏","❤️","🙌","😊","😂","😍","🔥","✨","🕊️","📖","🎶","👏","💙","🥰","👍","🎉","🌟","🤗","💪","😇"];
@@ -637,7 +653,7 @@
     let sendingMessage = false;
     messageSendBtn.addEventListener("click", async () => {
       if (sendingMessage) return;
-      messageListFeedback.hidden = true;
+      messageSuccessOverlay.hidden = true;
       if (!validateMessageFields()) {
         if (!messageName.value.trim()) messageName.focus();
         else messageText.focus();
@@ -660,15 +676,25 @@
         messagesPage = 0;
         messagesUpdatedAt = 0;
         await loadMessages(true);
-        const confirmed = allMessages.some(m => m.usuario === usuario && m.mensaje === mensaje);
-        messageListFeedback.textContent = confirmed
-          ? "✓ Enviado. Tu mensaje ya aparece publicado."
-          : "✓ Solicitud enviada. Aún no pudimos confirmar su publicación; revisá la lista en unos segundos.";
-        messageListFeedback.style.color = confirmed ? "#a8f0b7" : "#ffe0a0";
-        messageListFeedback.hidden = false;
-        messageText.value = "";
-        messageSendStatus.textContent = "";
-        showMessagesView(false);
+        let confirmed = allMessages.some(m => m.usuario === usuario && m.mensaje === mensaje);
+        // El POST no-cors no permite comprobar el resultado: reintentar lectura.
+        for (let attempt = 0; !confirmed && attempt < 3; attempt++) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          messagesUpdatedAt = 0;
+          await loadMessages(true);
+          confirmed = allMessages.some(m => m.usuario === usuario && m.mensaje === mensaje);
+        }
+        if (!confirmed) {
+          messageSendStatus.style.color = "#ffe0a0";
+          messageSendStatus.textContent = "Solicitud enviada, pero todavía no pudimos confirmar su publicación. Revisá la bandeja antes de volver a enviarlo.";
+        } else {
+          messageSendStatus.textContent = "";
+          messageSuccessOverlay.hidden = false;
+          await new Promise(resolve => setTimeout(resolve, 2200));
+          messageSuccessOverlay.hidden = true;
+          messageText.value = "";
+          showMessagesView(false);
+        }
       } catch (error) {
         console.warn("No se pudo enviar el mensaje", error);
         messageSendStatus.style.color = "#ffb8b8";
@@ -712,7 +738,7 @@
     window.addEventListener("load", () => { loadMessages(); }, {once: true});
     messagesToggleBtn.addEventListener("click", () => setMessagesOpen(!messagesPanel.classList.contains("is-open")));
     messagesCloseBtn.addEventListener("click", () => setMessagesOpen(false));
-    messagesComposeBtn.addEventListener("click", () => { messageListFeedback.hidden = true; showMessagesView(true); });
+    messagesComposeBtn.addEventListener("click", () => { messageSuccessOverlay.hidden = true; showMessagesView(true); });
     messagesBackBtn.addEventListener("click", () => showMessagesView(false));
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && messagesPanel.classList.contains("is-open")) setMessagesOpen(false);
