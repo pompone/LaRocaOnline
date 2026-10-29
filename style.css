@@ -1075,6 +1075,27 @@ body.power-off .icon-btn.power {
   }
 }
 
+/* Ondas sonoras visibles y proporcionadas en pantallas móviles. */
+@media (max-width: 600px) {
+  .sound-rays {
+    top: 31%;
+    width: 15%;
+    height: 74px;
+    gap: 4px;
+    opacity: .65;
+    pointer-events: none;
+  }
+  .sound-rays-left { left: 1%; }
+  .sound-rays-right { right: 1%; }
+  .sound-rays i {
+    width: 2px;
+    height: 21px;
+    box-shadow: 0 0 9px var(--blue);
+  }
+  .sound-rays i:nth-child(2) { height: 40px; }
+  .sound-rays i:nth-child(3) { height: 29px; }
+}
+
 @media (max-width: 390px) {
   .info-strip { gap: 6px; }
   .weather-panel,
