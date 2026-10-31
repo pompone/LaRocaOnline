@@ -1316,8 +1316,8 @@ body:not(.power-off) .donation-toggle:not(:disabled) { background:#e8bd69; color
 
 /* Selector de fotografías: botón integrado y visible en escritorio y móvil. */
 .messages-form #messagePhoto { display: block; width: 100%; box-sizing: border-box; padding: 8px; border: 1px dashed rgba(255,209,107,.8); border-radius: 12px; background: rgba(10,30,62,.48); color: #f5f8ff; font-size: .87rem; cursor: pointer; }
-.messages-form #messagePhoto::file-selector-button { padding: 8px 11px; margin-right: 10px; border: 0; border-radius: 9px; background: #e8bd69; color: #142b52; font: inherit; font-weight: 800; cursor: pointer; transition: background .15s ease; }
-.messages-form #messagePhoto::file-selector-button:hover { background: #ffdb8a; }
+.messages-form #messagePhoto::file-selector-button { padding: 6px 9px; margin-right: 10px; border: 1px solid #e8bd69; border-radius: 8px; background: #24477e; color: #fff; font: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; transition: background .15s ease; }
+.messages-form #messagePhoto::file-selector-button:hover { background: #315a96; }
 .messages-form #messagePhoto:focus-visible { outline: 3px solid #ffdb8a; outline-offset: 3px; }
 .messages-form #messagePhoto:disabled { opacity: .65; cursor: wait; }
 
