@@ -789,6 +789,7 @@
       messagePhoto.disabled = true;
       messageSendStatus.style.color = "";
       messageSendStatus.textContent = "Enviando...";
+      messageSendStatus.classList.add("is-sending");
       try {
         // La respuesta no-cors es opaca: confirmar con el listado GET si aparece.
         await fetch(messagesApi, {
@@ -813,9 +814,11 @@
           });
         }
         if (!confirmed) {
+          messageSendStatus.classList.remove("is-sending");
           messageSendStatus.style.color = "#ffe0a0";
           messageSendStatus.textContent = "Solicitud enviada, pero todavía no pudimos confirmar su publicación. Revisá la bandeja antes de volver a enviarlo.";
         } else {
+          messageSendStatus.classList.remove("is-sending");
           messageSendStatus.textContent = "";
           messageSuccessOverlay.hidden = false;
           await new Promise(resolve => setTimeout(resolve, 2200));
@@ -826,10 +829,12 @@
           showMessagesView(false);
         }
       } catch (error) {
+        messageSendStatus.classList.remove("is-sending");
         console.warn("No se pudo enviar el mensaje", error);
         messageSendStatus.style.color = "#ffb8b8";
         messageSendStatus.textContent = "No se pudo enviar. Revisá tu conexión e intentá otra vez.";
       } finally {
+        messageSendStatus.classList.remove("is-sending");
         sendingMessage = false;
         messageSendBtn.disabled = false;
         messagePhoto.disabled = false;
