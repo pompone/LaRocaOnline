@@ -639,6 +639,7 @@
           url.searchParams.set("accion", "paginaMensajes");
           url.searchParams.set("numero", String(requestedPage));
           url.searchParams.set("limite", String(MESSAGES_PAGE_SIZE));
+          url.searchParams.set("_", String(Date.now()));
           const response = await fetch(url.toString(), {cache:"no-store"});
           if (!response.ok) throw new Error("HTTP " + response.status);
           const data = await response.json();
@@ -750,6 +751,7 @@
       const usuario = messageName.value.trim();
       const mensaje = messageText.value.trim();
       const photoToSend = preparedPhoto;
+      const sentAt = Date.now();
       const knownIds = new Set(allMessages.map(m => m.id));
       sendingMessage = true;
       messageSendBtn.disabled = true;
@@ -766,14 +768,18 @@
         });
         messagesPage = 0;
         messagesUpdatedAt = 0;
-        await loadMessages(true);
-        let confirmed = allMessages.some(m => !knownIds.has(m.id) && m.usuario === usuario && m.mensaje === mensaje && Boolean(m.imagenId) === Boolean(photoToSend));
-        // El POST no-cors no permite comprobar el resultado: reintentar lectura.
-        for (let attempt = 0; !confirmed && attempt < 3; attempt++) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+        // El POST es opaco; verificar por lectura pública con reintentos.
+        let confirmed = false;
+        for (let attempt = 0; attempt < 10 && !confirmed; attempt++) {
+          if (attempt) await new Promise(resolve => setTimeout(resolve, 1500));
           messagesUpdatedAt = 0;
           await loadMessages(true);
-          confirmed = allMessages.some(m => !knownIds.has(m.id) && m.usuario === usuario && m.mensaje === mensaje && Boolean(m.imagenId) === Boolean(photoToSend));
+          confirmed = allMessages.some(m => {
+            const date = new Date(m.fecha).getTime();
+            return m.usuario === usuario && m.mensaje === mensaje &&
+              Boolean(m.imagenId) === Boolean(photoToSend) &&
+              (!knownIds.has(m.id) || (Number.isFinite(date) && date >= sentAt - 60000));
+          });
         }
         if (!confirmed) {
           messageSendStatus.style.color = "#ffe0a0";
@@ -795,6 +801,7 @@
       } finally {
         sendingMessage = false;
         messageSendBtn.disabled = false;
+        messagePhoto.disabled = false;
       }
     });
     function showMessagesView(compose) {
