@@ -1301,3 +1301,12 @@ body:not(.power-off) .donation-toggle:not(:disabled) { background:#e8bd69; color
 
 /* Miniatura más compacta en el listado; clic para ampliar */
 .message-entry-photo { max-height: 190px; max-width: min(100%, 280px); }
+
+/* Visor interno de fotografías: no abre enlaces externos ni interrumpe la radio. */
+.message-photo-open { display: block; width: fit-content; max-width: 100%; margin: 0; padding: 0; border: 0; background: transparent; cursor: zoom-in; border-radius: 10px; }
+.message-photo-open:focus-visible { outline: 3px solid #ffd16b; outline-offset: 3px; }
+.message-image-viewer[hidden] { display: none !important; }
+.message-image-viewer { position: fixed; z-index: 3000; inset: 0; display: flex; align-items: center; justify-content: center; padding: 60px 18px 24px; background: rgba(4, 12, 28, .92); cursor: zoom-out; }
+.message-image-viewer img { display: block; max-width: 100%; max-height: calc(100dvh - 90px); width: auto; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 12px 42px rgba(0,0,0,.55); cursor: default; }
+.message-image-viewer-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); width: 44px; height: 44px; border: 1px solid #ffffff88; border-radius: 12px; background: #24477e; color: white; font-size: 32px; line-height: 1; cursor: pointer; }
+.message-image-viewer-close:focus-visible { outline: 3px solid #ffd16b; outline-offset: 3px; }
