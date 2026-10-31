@@ -362,6 +362,11 @@
     </section>
   </main>
 
+  <div id="messageImageViewer" class="message-image-viewer" role="dialog" aria-modal="true" aria-label="Fotografía ampliada" aria-hidden="true" hidden inert>
+    <button id="messageImageViewerClose" class="message-image-viewer-close" type="button" aria-label="Cerrar fotografía">×</button>
+    <img id="messageImageViewerImage" alt="Fotografía ampliada" />
+  </div>
+
   <script>
     // La instalación automática solo puede abrirse si el navegador la ofrece.
     const installAppBtn = document.getElementById("installAppBtn");
@@ -416,6 +421,32 @@
     const messagesToggleBtn = document.getElementById("messagesToggleBtn");
     const messagesPanel = document.getElementById("messagesPanel");
     const messagesCloseBtn = document.getElementById("messagesCloseBtn");
+    const messageImageViewer = document.getElementById("messageImageViewer");
+    const messageImageViewerImage = document.getElementById("messageImageViewerImage");
+    const messageImageViewerClose = document.getElementById("messageImageViewerClose");
+    let imageViewerTrigger = null;
+    function closeMessageImageViewer() {
+      if (messageImageViewer.hidden) return;
+      messageImageViewer.hidden = true;
+      messageImageViewer.inert = true;
+      messageImageViewer.setAttribute("aria-hidden", "true");
+      messageImageViewerImage.removeAttribute("src");
+      if (imageViewerTrigger && imageViewerTrigger.isConnected) imageViewerTrigger.focus();
+      imageViewerTrigger = null;
+    }
+    function openMessageImageViewer(url, alt, trigger) {
+      imageViewerTrigger = trigger;
+      messageImageViewerImage.src = url;
+      messageImageViewerImage.alt = alt;
+      messageImageViewer.hidden = false;
+      messageImageViewer.inert = false;
+      messageImageViewer.setAttribute("aria-hidden", "false");
+      messageImageViewerClose.focus();
+    }
+    messageImageViewerClose.addEventListener("click", closeMessageImageViewer);
+    messageImageViewer.addEventListener("click", event => {
+      if (event.target === messageImageViewer) closeMessageImageViewer();
+    });
     const messagesListView = document.getElementById("messagesListView");
     const messagesComposeView = document.getElementById("messagesComposeView");
     const messagesComposeBtn = document.getElementById("messagesComposeBtn");
@@ -601,11 +632,11 @@
         entry.append(heading);
         if (message.mensaje) entry.append(body);
         if (message.imagenUrl && /^https:\/\/drive\.google\.com\/thumbnail\?id=/.test(message.imagenUrl)) {
-          const photoLink = document.createElement("a");
-          photoLink.href = message.imagenUrl;
-          photoLink.target = "_blank";
-          photoLink.rel = "noopener noreferrer";
+          const photoLink = document.createElement("button");
+          photoLink.type = "button";
+          photoLink.className = "message-photo-open";
           photoLink.setAttribute("aria-label", "Ampliar fotografía de " + (message.usuario || "oyente"));
+          photoLink.addEventListener("click", () => openMessageImageViewer(message.imagenUrl, "Fotografía compartida por " + (message.usuario || "oyente"), photoLink));
           const photo = document.createElement("img");
           photo.src = message.imagenUrl;
           photo.alt = "Fotografía compartida por " + (message.usuario || "oyente");
@@ -811,6 +842,7 @@
     function setMessagesOpen(open, restoreFocus = true) {
       // Los mensajes solo pueden abrirse con la radio encendida.
       if (open && document.body.classList.contains("power-off")) return;
+      if (!open) closeMessageImageViewer();
       messagesPanel.classList.toggle("is-open", open);
       messagesPanel.setAttribute("aria-hidden", String(!open));
       messagesPanel.inert = !open;
@@ -841,6 +873,8 @@
     messagesComposeBtn.addEventListener("click", () => { messageSuccessOverlay.hidden = true; showMessagesView(true); });
     messagesBackBtn.addEventListener("click", () => showMessagesView(false));
     document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !messageImageViewer.hidden) { event.preventDefault(); closeMessageImageViewer(); return; }
+      if (event.key === "Tab" && !messageImageViewer.hidden) { event.preventDefault(); messageImageViewerClose.focus(); return; }
       if (event.key === "Escape" && messagesPanel.classList.contains("is-open")) setMessagesOpen(false);
     });
   </script>
