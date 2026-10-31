@@ -1298,3 +1298,6 @@ body:not(.power-off) .donation-toggle:not(:disabled) { background:#e8bd69; color
 .message-photo-preview img { display: block; max-width: 100%; max-height: 190px; border-radius: 10px; object-fit: contain; }
 .messages-form #messagePhotoRemove { justify-self: start; opacity: 1; cursor: pointer; background: rgba(255,255,255,.16); color: white; padding: 7px 12px; }
 .message-entry-photo { display: block; max-width: 100%; max-height: 300px; width: auto; height: auto; margin: 10px 0; border-radius: 10px; object-fit: contain; }
+
+/* Miniatura más compacta en el listado; clic para ampliar */
+.message-entry-photo { max-height: 190px; max-width: min(100%, 280px); }
