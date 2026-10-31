@@ -1289,3 +1289,12 @@ body:not(.power-off) .donation-toggle:not(:disabled) { background:#e8bd69; color
 @media(prefers-reduced-motion:reduce) {
   .donation-details,.donation-details.is-open { transition-duration:.01ms; transition-delay:0ms; filter:none; }
 }
+
+/* Fotografías adjuntas a mensajes */
+.messages-form #messagePhoto { padding: 9px; font-size: .85rem; }
+.message-photo-hint { color: #dce8fa; font-size: .76rem; }
+.message-photo-preview[hidden] { display: none; }
+.message-photo-preview { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.message-photo-preview img { display: block; max-width: 100%; max-height: 190px; border-radius: 10px; object-fit: contain; }
+.messages-form #messagePhotoRemove { justify-self: start; opacity: 1; cursor: pointer; background: rgba(255,255,255,.16); color: white; padding: 7px 12px; }
+.message-entry-photo { display: block; max-width: 100%; max-height: 300px; width: auto; height: auto; margin: 10px 0; border-radius: 10px; object-fit: contain; }
