@@ -288,7 +288,14 @@
             <label for="messageName">Tu nombre</label>
             <input id="messageName" type="text" placeholder="Escribí tu nombre" maxlength="40" required />
             <label for="messageText">Tu mensaje</label>
-            <textarea id="messageText" rows="3" placeholder="Escribí tu mensaje" maxlength="500" required></textarea>
+            <textarea id="messageText" rows="3" placeholder="Escribí tu mensaje" maxlength="500"></textarea>
+            <label for="messagePhoto">Fotografía (opcional)</label>
+            <input id="messagePhoto" type="file" accept="image/*" aria-describedby="messagePhotoHint" />
+            <small id="messagePhotoHint" class="message-photo-hint">La imagen se optimizará automáticamente a WebP (máximo 400 KB).</small>
+            <div id="messagePhotoPreview" class="message-photo-preview" hidden>
+              <img id="messagePhotoPreviewImage" alt="Vista previa de la fotografía seleccionada" />
+              <button id="messagePhotoRemove" type="button">Quitar fotografía</button>
+            </div>
             <div class="emoji-picker-wrap">
               <button id="emojiToggleBtn" class="emoji-toggle" type="button" aria-expanded="false" aria-controls="emojiPicker" aria-label="Elegir emoji">😊 Emojis</button>
               <div id="emojiPicker" class="emoji-picker" hidden aria-label="Elegir un emoji"></div>
@@ -417,6 +424,71 @@
     const messagesList = document.getElementById("messagesList");
     const messagesMoreBtn = document.getElementById("messagesMoreBtn");
     const messagesBackPageBtn = document.getElementById("messagesBackPageBtn");
+    const messagePhoto = document.getElementById("messagePhoto");
+    const messagePhotoPreview = document.getElementById("messagePhotoPreview");
+    const messagePhotoPreviewImage = document.getElementById("messagePhotoPreviewImage");
+    const messagePhotoRemove = document.getElementById("messagePhotoRemove");
+    let preparedPhoto = null;
+    let photoPreparing = false;
+    const MAX_PHOTO_BYTES = 400 * 1024;
+    function clearMessagePhoto() {
+      messagePhoto.value = "";
+      preparedPhoto = null;
+      messagePhotoPreviewImage.removeAttribute("src");
+      messagePhotoPreview.hidden = true;
+    }
+    async function prepareMessagePhoto(file) {
+      if (!file) { clearMessagePhoto(); return; }
+      if (!file.type.startsWith("image/")) throw new Error("Seleccioná un archivo de imagen.");
+      if (file.size > 20 * 1024 * 1024) throw new Error("La imagen original no puede superar los 20 MB.");
+      const bitmap = await createImageBitmap(file);
+      try {
+        for (const maxSide of [1600, 1280, 1024, 800, 640, 480, 320]) {
+          const ratio = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+          canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+          canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+          for (const quality of [.85, .72, .58, .44]) {
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", quality));
+            if (!blob || blob.type !== "image/webp") throw new Error("Este navegador no permite convertir imágenes a WebP.");
+            if (blob.size > MAX_PHOTO_BYTES) continue;
+            const bytes = new Uint8Array(await blob.arrayBuffer());
+            let binary = "";
+            for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+            return {mime:"image/webp", base64:btoa(binary), preview:URL.createObjectURL(blob)};
+          }
+        }
+        throw new Error("No se pudo reducir la fotografía a 400 KB.");
+      } finally { bitmap.close(); }
+    }
+    messagePhoto.addEventListener("change", async () => {
+      const file = messagePhoto.files && messagePhoto.files[0];
+      if (preparedPhoto) URL.revokeObjectURL(preparedPhoto.preview);
+      clearMessagePhoto();
+      if (!file) return;
+      photoPreparing = true;
+      messageSendBtn.disabled = true;
+      messageSendStatus.textContent = "Preparando fotografía...";
+      try {
+        preparedPhoto = await prepareMessagePhoto(file);
+        messagePhotoPreviewImage.src = preparedPhoto.preview;
+        messagePhotoPreview.hidden = false;
+        messageSendStatus.textContent = "Fotografía lista para enviar.";
+      } catch (error) {
+        messageSendStatus.style.color = "#ffb8b8";
+        messageSendStatus.textContent = error.message;
+      } finally {
+        photoPreparing = false;
+        messageSendBtn.disabled = false;
+        messagePhoto.disabled = false;
+      }
+    });
+    messagePhotoRemove.addEventListener("click", () => {
+      if (preparedPhoto) URL.revokeObjectURL(preparedPhoto.preview);
+      clearMessagePhoto();
+      messageSendStatus.textContent = "";
+    });
     const messagesApi = "https://script.google.com/macros/s/AKfycbx0-d8po6vpmYUR62a36cSUv1dWK_cEFmFVp6CwUE6h3yPJcEVzoB_HOIGk-P7rOd6tlw/exec";
     const MESSAGE_CACHE_TTL = 2 * 60 * 1000;
     let allMessages = [];
@@ -526,7 +598,23 @@
         likeButton.disabled = alreadyLiked || !likeDeviceId || pendingLikes.has(message.id);
         if (likeButton.disabled) likeButton.style.opacity = ".75";
         likeButton.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); void sendMessageLike(message, likeButton); });
-        entry.append(heading, body, likeButton);
+        entry.append(heading);
+        if (message.mensaje) entry.append(body);
+        if (message.imagenUrl && /^https:\/\/drive\.google\.com\/thumbnail\?id=/.test(message.imagenUrl)) {
+          const photoLink = document.createElement("a");
+          photoLink.href = message.imagenUrl;
+          photoLink.target = "_blank";
+          photoLink.rel = "noopener noreferrer";
+          photoLink.setAttribute("aria-label", "Ampliar fotografía de " + (message.usuario || "oyente"));
+          const photo = document.createElement("img");
+          photo.src = message.imagenUrl;
+          photo.alt = "Fotografía compartida por " + (message.usuario || "oyente");
+          photo.className = "message-entry-photo";
+          photo.loading = "lazy";
+          photoLink.append(photo);
+          entry.append(photoLink);
+        }
+        entry.append(likeButton);
         messagesList.append(entry);
       }
       messagesList.scrollTop = previousScroll;
@@ -631,15 +719,15 @@
       const usuario = messageName.value.trim();
       const mensaje = messageText.value.trim();
       messageName.setCustomValidity(usuario ? "" : "Ingresá tu nombre");
-      messageText.setCustomValidity(mensaje ? "" : "Ingresá el mensaje");
+      messageText.setCustomValidity(mensaje || preparedPhoto ? "" : "Ingresá un mensaje o adjuntá una fotografía");
       messageName.setAttribute("aria-invalid", String(!usuario));
       messageText.setAttribute("aria-invalid", String(!mensaje));
-      if (!usuario && !mensaje) messageSendStatus.textContent = "Ingresá tu nombre y el mensaje.";
+      if (!usuario && !mensaje && !preparedPhoto) messageSendStatus.textContent = "Ingresá tu nombre y un mensaje o fotografía.";
       else if (!usuario) messageSendStatus.textContent = "Ingresá tu nombre.";
-      else if (!mensaje) messageSendStatus.textContent = "Ingresá el mensaje.";
+      else if (!mensaje && !preparedPhoto) messageSendStatus.textContent = "Ingresá un mensaje o adjuntá una fotografía.";
       else messageSendStatus.textContent = "";
-      messageSendStatus.style.color = usuario && mensaje ? "" : "#ffb8b8";
-      return Boolean(usuario && mensaje);
+      messageSendStatus.style.color = usuario && (mensaje || preparedPhoto) ? "" : "#ffb8b8";
+      return Boolean(usuario && (mensaje || preparedPhoto));
     }
     for (const field of [messageName, messageText]) {
       field.addEventListener("input", () => {
@@ -652,7 +740,7 @@
     }
     let sendingMessage = false;
     messageSendBtn.addEventListener("click", async () => {
-      if (sendingMessage) return;
+      if (sendingMessage || photoPreparing) return;
       messageSuccessOverlay.hidden = true;
       if (!validateMessageFields()) {
         if (!messageName.value.trim()) messageName.focus();
@@ -661,8 +749,11 @@
       }
       const usuario = messageName.value.trim();
       const mensaje = messageText.value.trim();
+      const photoToSend = preparedPhoto;
+      const knownIds = new Set(allMessages.map(m => m.id));
       sendingMessage = true;
       messageSendBtn.disabled = true;
+      messagePhoto.disabled = true;
       messageSendStatus.style.color = "";
       messageSendStatus.textContent = "Enviando...";
       try {
@@ -671,18 +762,18 @@
           method: "POST",
           mode: "no-cors",
           headers: {"Content-Type": "text/plain;charset=UTF-8"},
-          body: JSON.stringify({usuario, mensaje})
+          body: JSON.stringify({usuario, mensaje, ...(photoToSend ? {foto:{mime:photoToSend.mime,base64:photoToSend.base64}} : {})})
         });
         messagesPage = 0;
         messagesUpdatedAt = 0;
         await loadMessages(true);
-        let confirmed = allMessages.some(m => m.usuario === usuario && m.mensaje === mensaje);
+        let confirmed = allMessages.some(m => !knownIds.has(m.id) && m.usuario === usuario && m.mensaje === mensaje && Boolean(m.imagenId) === Boolean(photoToSend));
         // El POST no-cors no permite comprobar el resultado: reintentar lectura.
         for (let attempt = 0; !confirmed && attempt < 3; attempt++) {
           await new Promise(resolve => setTimeout(resolve, 1000));
           messagesUpdatedAt = 0;
           await loadMessages(true);
-          confirmed = allMessages.some(m => m.usuario === usuario && m.mensaje === mensaje);
+          confirmed = allMessages.some(m => !knownIds.has(m.id) && m.usuario === usuario && m.mensaje === mensaje && Boolean(m.imagenId) === Boolean(photoToSend));
         }
         if (!confirmed) {
           messageSendStatus.style.color = "#ffe0a0";
@@ -693,6 +784,8 @@
           await new Promise(resolve => setTimeout(resolve, 2200));
           messageSuccessOverlay.hidden = true;
           messageText.value = "";
+          if (preparedPhoto) URL.revokeObjectURL(preparedPhoto.preview);
+          clearMessagePhoto();
           showMessagesView(false);
         }
       } catch (error) {
