@@ -1310,3 +1310,19 @@ body:not(.power-off) .donation-toggle:not(:disabled) { background:#e8bd69; color
 .message-image-viewer img { display: block; max-width: 100%; max-height: calc(100dvh - 90px); width: auto; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 12px 42px rgba(0,0,0,.55); cursor: default; }
 .message-image-viewer-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); width: 44px; height: 44px; border: 1px solid #ffffff88; border-radius: 12px; background: #24477e; color: white; font-size: 32px; line-height: 1; cursor: pointer; }
 .message-image-viewer-close:focus-visible { outline: 3px solid #ffd16b; outline-offset: 3px; }
+
+/* Miniaturas centradas en la bandeja. */
+.message-photo-open { margin: 10px auto; }
+
+/* Selector de fotografías: botón integrado y visible en escritorio y móvil. */
+.messages-form #messagePhoto { display: block; width: 100%; box-sizing: border-box; padding: 8px; border: 1px dashed rgba(255,209,107,.8); border-radius: 12px; background: rgba(10,30,62,.48); color: #f5f8ff; font-size: .87rem; cursor: pointer; }
+.messages-form #messagePhoto::file-selector-button { padding: 11px 16px; margin-right: 12px; border: 0; border-radius: 9px; background: #e8bd69; color: #142b52; font: inherit; font-weight: 800; cursor: pointer; transition: background .15s ease; }
+.messages-form #messagePhoto::file-selector-button:hover { background: #ffdb8a; }
+.messages-form #messagePhoto:focus-visible { outline: 3px solid #ffdb8a; outline-offset: 3px; }
+.messages-form #messagePhoto:disabled { opacity: .65; cursor: wait; }
+
+/* Estado de envío destacado, sin confundirlo con el éxito confirmado. */
+#messageSendStatus.is-sending { display: flex; align-items: center; gap: 11px; padding: 13px 15px; border: 2px solid #ffd16b; border-radius: 12px; background: #614115; color: #fff3c7 !important; font-size: 1rem; font-weight: 800; box-shadow: 0 0 0 3px rgba(255,209,107,.12); }
+#messageSendStatus.is-sending::before { content: ""; display: inline-block; flex: 0 0 18px; width: 18px; height: 18px; border: 3px solid rgba(255,243,199,.35); border-top-color: #fff3c7; border-radius: 50%; animation: messageSendingSpin .85s linear infinite; }
+@keyframes messageSendingSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #messageSendStatus.is-sending::before { animation: none; } }
