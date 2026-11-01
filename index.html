@@ -290,7 +290,12 @@
             <label for="messageText">Tu mensaje</label>
             <textarea id="messageText" rows="3" placeholder="Escribí tu mensaje" maxlength="500"></textarea>
             <label for="messagePhoto">Fotografía (opcional)</label>
-            <input id="messagePhoto" type="file" accept="image/*" aria-describedby="messagePhotoHint" />
+            <div class="message-photo-choices">
+              <label class="message-photo-choice" for="messagePhoto">🖼️ Galería</label>
+              <label class="message-photo-choice message-camera-choice" for="messageCamera">📷 Tomar foto</label>
+            </div>
+            <input id="messagePhoto" class="message-photo-input" type="file" accept="image/*" aria-describedby="messagePhotoHint" />
+            <input id="messageCamera" class="message-photo-input" type="file" accept="image/*" capture="environment" aria-label="Tomar una fotografía con la cámara" aria-describedby="messagePhotoHint" />
             <small id="messagePhotoHint" class="message-photo-hint">La imagen se optimizará automáticamente a WebP (máximo 400 KB).</small>
             <div id="messagePhotoPreview" class="message-photo-preview" hidden>
               <img id="messagePhotoPreviewImage" alt="Vista previa de la fotografía seleccionada" />
@@ -456,6 +461,7 @@
     const messagesMoreBtn = document.getElementById("messagesMoreBtn");
     const messagesBackPageBtn = document.getElementById("messagesBackPageBtn");
     const messagePhoto = document.getElementById("messagePhoto");
+    const messageCamera = document.getElementById("messageCamera");
     const messagePhotoPreview = document.getElementById("messagePhotoPreview");
     const messagePhotoPreviewImage = document.getElementById("messagePhotoPreviewImage");
     const messagePhotoRemove = document.getElementById("messagePhotoRemove");
@@ -464,6 +470,7 @@
     const MAX_PHOTO_BYTES = 400 * 1024;
     function clearMessagePhoto() {
       messagePhoto.value = "";
+      messageCamera.value = "";
       preparedPhoto = null;
       messagePhotoPreviewImage.removeAttribute("src");
       messagePhotoPreview.hidden = true;
@@ -493,8 +500,8 @@
         throw new Error("No se pudo reducir la fotografía a 400 KB.");
       } finally { bitmap.close(); }
     }
-    messagePhoto.addEventListener("change", async () => {
-      const file = messagePhoto.files && messagePhoto.files[0];
+    async function handleMessagePhotoSelection(input) {
+      const file = input.files && input.files[0];
       if (preparedPhoto) URL.revokeObjectURL(preparedPhoto.preview);
       clearMessagePhoto();
       if (!file) return;
@@ -513,8 +520,11 @@
         photoPreparing = false;
         messageSendBtn.disabled = false;
         messagePhoto.disabled = false;
+        messageCamera.disabled = false;
       }
-    });
+    }
+    messagePhoto.addEventListener("change", () => { void handleMessagePhotoSelection(messagePhoto); });
+    messageCamera.addEventListener("change", () => { void handleMessagePhotoSelection(messageCamera); });
     messagePhotoRemove.addEventListener("click", () => {
       if (preparedPhoto) URL.revokeObjectURL(preparedPhoto.preview);
       clearMessagePhoto();
@@ -787,6 +797,7 @@
       sendingMessage = true;
       messageSendBtn.disabled = true;
       messagePhoto.disabled = true;
+      messageCamera.disabled = true;
       messageSendStatus.style.color = "";
       messageSendStatus.textContent = "Enviando...";
       messageSendStatus.classList.add("is-sending");
@@ -838,6 +849,7 @@
         sendingMessage = false;
         messageSendBtn.disabled = false;
         messagePhoto.disabled = false;
+        messageCamera.disabled = false;
       }
     });
     function showMessagesView(compose) {
