@@ -661,7 +661,7 @@ function drawSpectrumFrame() {
     let sum = 0;
     for (let k = first; k <= last; k++) sum += spectrumFrequency[k];
     const level = sum / (last - first + 1) / 255;
-    const target = Math.min(1, level * 1.8);
+    const target = Math.min(1, level * 1.0);
     spectrumHeights[b] += (target - spectrumHeights[b]) * (target > spectrumHeights[b] ? .4 : .18);
     const amplitude = spectrumHeights[b];
     const barX = b * (barW + gap);
