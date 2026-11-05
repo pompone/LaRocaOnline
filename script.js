@@ -57,6 +57,7 @@ let castReady = false;
 let castContext = null;
 let isRemotePlaying = false;
 
+audio.crossOrigin = "anonymous"; // Habilita el análisis del stream si el servidor permite CORS.
 audio.src = STREAM_URL;
 audio.volume = 0.70;
 
@@ -125,6 +126,7 @@ async function playLocal() {
 
   try {
     setStatus("Conectando...");
+    await prepareSpectrumAudio();
     await audio.play();
 
     if (poweredOn && !getCastSession()) {
@@ -520,3 +522,184 @@ setInterval(updateWeather, 15 * 60 * 1000);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) updateWeather();
 });
+
+
+// ===== Espectro real de La Roca Online: tres estilos, sin animación simulada =====
+const spectrumControl = document.getElementById("spectrumControl");
+const spectrumCanvas = document.getElementById("spectrumCanvas");
+const spectrumCtx = spectrumCanvas?.getContext("2d");
+const spectrumNames = ["barras clásicas", "espejo", "onda"];
+let spectrumMode = 0;
+let spectrumAudioContext = null;
+let spectrumAnalyser = null;
+let spectrumFrequency = null;
+let spectrumWave = null;
+let spectrumFrame = 0;
+let spectrumFailed = false;
+let spectrumHeights = new Float32Array(15);
+
+try {
+  const storedMode = Number(localStorage.getItem("laRocaSpectrumMode"));
+  if (Number.isInteger(storedMode) && storedMode >= 0 && storedMode < 3) spectrumMode = storedMode;
+} catch (_) { /* La configuración local puede estar restringida. */ }
+
+function updateSpectrumLabel() {
+  if (!spectrumControl) return;
+  spectrumControl.setAttribute("aria-label", "Cambiar visualización del espectro: " + spectrumNames[spectrumMode]);
+  spectrumControl.title = "Espectro: " + spectrumNames[spectrumMode] + ". Clic para cambiar";
+}
+
+function switchSpectrumMode() {
+  spectrumMode = (spectrumMode + 1) % 3;
+  spectrumHeights.fill(0);
+  updateSpectrumLabel();
+  try { localStorage.setItem("laRocaSpectrumMode", String(spectrumMode)); } catch (_) {}
+  drawSpectrumFrame();
+}
+
+spectrumControl?.addEventListener("click", switchSpectrumMode);
+spectrumControl?.addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    switchSpectrumMode();
+  }
+});
+updateSpectrumLabel();
+
+async function prepareSpectrumAudio() {
+  if (spectrumAudioContext) {
+    if (spectrumAudioContext.state === "suspended") {
+      await spectrumAudioContext.resume();
+    }
+    return;
+  }
+  if (!spectrumCtx || spectrumFailed) return;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) throw new Error("Web Audio API no disponible");
+    const context = new AudioContextClass();
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.72;
+    const source = context.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(context.destination);
+    spectrumAudioContext = context;
+    spectrumAnalyser = analyser;
+    spectrumFrequency = new Uint8Array(analyser.frequencyBinCount);
+    spectrumWave = new Uint8Array(analyser.fftSize);
+    spectrumControl?.classList.add("spectrum-ready");
+    await context.resume();
+  } catch (error) {
+    // No simular espectro: conservar registro del fallo para diagnóstico.
+    spectrumFailed = true;
+    console.warn("Espectro real no disponible:", error);
+  }
+}
+
+function spectrumDimensions() {
+  if (!spectrumCanvas || !spectrumCtx) return null;
+  const rect = spectrumCanvas.getBoundingClientRect();
+  if (rect.width < 1 || rect.height < 1) return null;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(1, Math.round(rect.width * dpr));
+  const height = Math.max(1, Math.round(rect.height * dpr));
+  if (spectrumCanvas.width !== width || spectrumCanvas.height !== height) {
+    spectrumCanvas.width = width;
+    spectrumCanvas.height = height;
+  }
+  spectrumCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { width: rect.width, height: rect.height };
+}
+
+function drawSpectrumFrame() {
+  if (!spectrumAnalyser || !spectrumCtx || !spectrumFrequency) return;
+  const dim = spectrumDimensions();
+  if (!dim) return;
+  const { width: w, height: h } = dim;
+  spectrumCtx.clearRect(0, 0, w, h);
+  if (!poweredOn || audio.paused || audio.muted || audio.volume === 0 || getCastSession()) return;
+
+  const count = spectrumHeights.length;
+  if (spectrumMode === 2) {
+    spectrumAnalyser.getByteTimeDomainData(spectrumWave);
+    spectrumCtx.beginPath();
+    spectrumCtx.lineWidth = 2.4;
+    spectrumCtx.lineJoin = "round";
+    spectrumCtx.strokeStyle = "#55ed42";
+    spectrumCtx.shadowBlur = 7;
+    spectrumCtx.shadowColor = "#25e05a";
+    for (let x = 0; x <= w; x += 2) {
+      const i = Math.min(spectrumWave.length - 1, Math.floor(x / w * spectrumWave.length));
+      const y = (spectrumWave[i] / 255) * h;
+      if (x === 0) spectrumCtx.moveTo(x, y);
+      else spectrumCtx.lineTo(x, y);
+    }
+    spectrumCtx.stroke();
+    spectrumCtx.shadowBlur = 0;
+    return;
+  }
+
+  spectrumAnalyser.getByteFrequencyData(spectrumFrequency);
+  const gap = w < 150 ? 2 : 4;
+  const barW = (w - gap * (count - 1)) / count;
+  const grad = spectrumCtx.createLinearGradient(0, h, 0, 0);
+  grad.addColorStop(0, "#25e05a");
+  grad.addColorStop(.35, "#55ed42");
+  grad.addColorStop(.65, "#f4e83b");
+  grad.addColorStop(.82, "#ff9d28");
+  grad.addColorStop(1, "#f44336");
+  spectrumCtx.fillStyle = grad;
+  for (let b = 0; b < count; b++) {
+    // Distribución logarítmica aproximada: graves a la izquierda, agudos a la derecha.
+    const minHz = 55, maxHz = 12000;
+    const hz1 = minHz * Math.pow(maxHz / minHz, b / count);
+    const hz2 = minHz * Math.pow(maxHz / minHz, (b + 1) / count);
+    const nyquist = spectrumAudioContext.sampleRate / 2;
+    const first = Math.min(spectrumFrequency.length - 1, Math.floor(hz1 / nyquist * spectrumFrequency.length));
+    const last = Math.min(spectrumFrequency.length - 1, Math.max(first, Math.ceil(hz2 / nyquist * spectrumFrequency.length)));
+    let sum = 0;
+    for (let k = first; k <= last; k++) sum += spectrumFrequency[k];
+    const level = sum / (last - first + 1) / 255;
+    const target = Math.min(1, level * 1.8);
+    spectrumHeights[b] += (target - spectrumHeights[b]) * (target > spectrumHeights[b] ? .4 : .18);
+    const amplitude = spectrumHeights[b];
+    const barX = b * (barW + gap);
+    if (spectrumMode === 0) {
+      const barH = amplitude * h;
+      spectrumCtx.fillRect(barX, h - barH, barW, barH);
+    } else {
+      const halfH = amplitude * h * .48;
+      spectrumCtx.fillRect(barX, h / 2 - halfH, barW, 2 * halfH);
+    }
+  }
+}
+
+function animateSpectrum() {
+  spectrumFrame = 0;
+  if (!poweredOn || audio.paused || document.hidden || getCastSession()) {
+    drawSpectrumFrame();
+    return;
+  }
+  drawSpectrumFrame();
+  spectrumFrame = requestAnimationFrame(animateSpectrum);
+}
+
+function refreshSpectrumAnimation() {
+  if (spectrumFrame) cancelAnimationFrame(spectrumFrame);
+  spectrumFrame = 0;
+  if (poweredOn && !audio.paused && !document.hidden && !getCastSession()) {
+    spectrumFrame = requestAnimationFrame(animateSpectrum);
+  } else {
+    drawSpectrumFrame();
+  }
+}
+
+audio.addEventListener("playing", refreshSpectrumAnimation);
+audio.addEventListener("pause", refreshSpectrumAnimation);
+audio.addEventListener("volumechange", drawSpectrumFrame);
+document.addEventListener("visibilitychange", refreshSpectrumAnimation);
+powerBtn.addEventListener("click", () => setTimeout(refreshSpectrumAnimation, 0));
+if (typeof ResizeObserver !== "undefined" && spectrumCanvas) {
+  new ResizeObserver(drawSpectrumFrame).observe(spectrumCanvas);
+}
