@@ -1,4 +1,4 @@
-const CACHE_NAME = "la-roca-v43";
+const CACHE_NAME = "la-roca-v44";
 
 const ASSETS = [
   "./",
