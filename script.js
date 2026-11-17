@@ -57,7 +57,7 @@ let castReady = false;
 let castContext = null;
 let isRemotePlaying = false;
 
-audio.crossOrigin = "anonymous"; // Habilita el análisis del stream si el servidor permite CORS.
+// Reproducir directamente sin exigir CORS al servidor NetFan.
 audio.src = STREAM_URL;
 audio.volume = 0.70;
 
@@ -126,7 +126,7 @@ async function playLocal() {
 
   try {
     setStatus("Conectando...");
-    await prepareSpectrumAudio();
+    // El análisis Web Audio se desactiva hasta confirmar CORS en NetFan.
     await audio.play();
 
     if (poweredOn && !getCastSession()) {
