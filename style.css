@@ -1363,3 +1363,102 @@ body.maintenance-checking .signal-mark, body.maintenance-active .signal-mark { b
 body.maintenance-checking .radio-card, body.maintenance-active .radio-card { min-height: min(100dvh - 32px, 740px); }
 @media(max-width:600px) { .maintenance-panel { margin-top: 18px; min-height: 320px; padding: 30px 18px; } .maintenance-symbol { width: 78px; height: 78px; font-size: 44px; } }
 
+
+
+/* Temas: el oscuro original no se modifica. Switch junto al encendido. */
+.header-actions { display: flex; align-items: center; gap: 9px; flex: none; }
+.theme-switch {
+  position: relative; flex: none; display: flex; align-items: center;
+  width: 65px; height: 36px; padding: 0 8px;
+  border: 2px solid #8bbcf3; border-radius: 999px;
+  background: #14325c; color: #fff;
+  box-shadow: inset 0 2px 7px #05183166, 0 3px 12px #06183133;
+  transition: background .2s, border-color .2s;
+}
+.theme-switch-icon { font-size: 21px; line-height: 1; pointer-events: none; }
+.theme-switch-thumb {
+  position: absolute; width: 25px; height: 25px;
+  top: 4px; right: 4px; border-radius: 50%;
+  background: linear-gradient(145deg, #fff, #d7e8ff);
+  box-shadow: 0 2px 6px #0004;
+  transition: transform .2s;
+  pointer-events: none;
+}
+.theme-switch:focus-visible { outline: 3px solid #ffda77; outline-offset: 3px; }
+html[data-theme="light"] .theme-switch {
+  background: #fff8db; border-color: #f4c45d; color: #e9a800;
+}
+html[data-theme="light"] .theme-switch-thumb { transform: translateX(-29px); }
+@media (max-width: 600px) {
+  .radio-top { gap: 6px; }
+  .header-actions { gap: 6px; }
+  .theme-switch { width: 54px; height: 32px; padding: 0 6px; }
+  .theme-switch-icon { font-size: 18px; }
+  .theme-switch-thumb { width: 22px; height: 22px; top: 3px; right: 3px; }
+  html[data-theme="light"] .theme-switch-thumb { transform: translateX(-22px); }
+  .station-heading { flex: 1; min-width: 0; gap: 6px; }
+  .header-logo { width: clamp(88px, 27vw, 116px); height: 90px; }
+  .eyebrow { font-size: clamp(.48rem, 2.05vw, .62rem); letter-spacing: .02em; overflow-wrap: anywhere; }
+}
+@media (max-width: 390px) {
+  .header-logo { width: 88px; height: 82px; }
+  .theme-switch { width: 48px; }
+  html[data-theme="light"] .theme-switch-thumb { transform: translateX(-16px); }
+  .header-actions { gap: 4px; }
+}
+
+/* Tema claro diseñado sobre los mismos elementos y posiciones. */
+html[data-theme="light"] {
+  --text: #172941; --muted: #445e7f;
+  --line: rgba(63,111,173,.35); --gold: #c68b14;
+  background: #edf4ff; color-scheme: light;
+}
+html[data-theme="light"] body { color: #172941; background: linear-gradient(145deg,#ecf5ff,#fffaf0); }
+html[data-theme="light"] .radio-card {
+  background: linear-gradient(150deg,#f9fcff 0%,#e8f2ff 55%,#dcecff 100%);
+  border-color: #a8c8ed; box-shadow: 0 20px 55px rgba(38,77,131,.17);
+}
+html[data-theme="light"] .eyebrow { color: #183355; }
+html[data-theme="light"] .display {
+  border-color: #a7c8ed;
+  background: radial-gradient(circle at 50% 32%,#dbeeff,#b9d8f6 68%,#a5c8ec);
+}
+html[data-theme="light"] .display-glow { background: radial-gradient(circle at 50% 40%,rgba(255,255,255,.65),transparent 56%); }
+html[data-theme="light"] .display::before {
+  background: repeating-linear-gradient(0deg,transparent 0 18px,rgba(255,255,255,.14) 19px 20px);
+}
+html[data-theme="light"] .now-playing {
+  border-color: #8dbce7;
+  background: linear-gradient(90deg,rgba(244,249,255,.96),rgba(221,238,255,.96));
+}
+html[data-theme="light"] .marquee-track { color: #283e59; }
+html[data-theme="light"] .round-control {
+  color: #275887; border-color: #9ac7f8; background: linear-gradient(145deg,#fff,#d9eafd);
+  box-shadow: 0 5px 16px rgba(50,95,150,.2);
+}
+html[data-theme="light"] .round-control:hover { background: #d2e6fd; }
+html[data-theme="light"] .volume-panel {
+  border-color: #a3c5ed; background: rgba(212,230,251,.58);
+}
+html[data-theme="light"] #volumeSlider {
+  background: linear-gradient(to right,var(--level-color) 0 var(--level),#a6bdd9 var(--level) 100%);
+}
+html[data-theme="light"] .weather-panel,
+html[data-theme="light"] .online-counter,
+html[data-theme="light"] .developer-credit { color: #223a5a; }
+html[data-theme="light"] .weather-temp,
+html[data-theme="light"] .online-counter strong,
+html[data-theme="light"] .volume-copy strong,
+html[data-theme="light"] .developer-credit a { color: #a66a00; }
+html[data-theme="light"] .ministry-footer {
+  color: #152940; border-top-color: rgba(53,112,187,.35);
+}
+html[data-theme="light"] .messages-panel { color: #f8f7f3; }
+html[data-theme="light"] .maintenance-panel { color: #f8f7f3; }
+html[data-theme="light"] .message-image-viewer { color: #f8f7f3; }
+@media (max-width: 600px) {
+  html[data-theme="light"] body { background: #e8f2ff; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch, .theme-switch-thumb { transition: none; }
+}
