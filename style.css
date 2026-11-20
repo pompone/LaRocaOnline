@@ -1362,3 +1362,18 @@ body.maintenance-checking #donationDetails, body.maintenance-active #donationDet
 body.maintenance-checking .signal-mark, body.maintenance-active .signal-mark { background: #ffd16b; box-shadow: 0 0 10px #ffd16b; }
 body.maintenance-checking .radio-card, body.maintenance-active .radio-card { min-height: min(100dvh - 32px, 740px); }
 @media(max-width:600px) { .maintenance-panel { margin-top: 18px; min-height: 320px; padding: 30px 18px; } .maintenance-symbol { width: 78px; height: 78px; font-size: 44px; } }
+
+/* Al iniciar, no anticipar un estado de mantenimiento todavía desconocido. */
+body.maintenance-checking .maintenance-panel { display: none !important; }
+body.maintenance-checking .radio-card::after {
+  content: "Cargando La Roca Online…";
+  display: block;
+  margin: 65px auto;
+  color: #dce8fa;
+  font-size: 1rem;
+  text-align: center;
+}
+body.maintenance-checking .info-strip,
+body.maintenance-checking .donation-section,
+body.maintenance-checking .ministry-footer,
+body.maintenance-checking .developer-credit { visibility: hidden; }
