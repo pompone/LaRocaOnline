@@ -1462,3 +1462,7 @@ html[data-theme="light"] .message-image-viewer { color: #f8f7f3; }
 @media (prefers-reduced-motion: reduce) {
   .theme-switch, .theme-switch-thumb { transition: none; }
 }
+
+/* Bloquear el cambio de tema mientras la radio esté apagada. */
+.theme-switch:disabled { cursor: not-allowed; opacity: .4; filter: grayscale(.5); box-shadow: none; }
+.theme-switch:disabled .theme-switch-thumb { box-shadow: none; }
