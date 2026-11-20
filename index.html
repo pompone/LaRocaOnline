@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#24477e" />
+  <meta name="theme-color" content="#24477e" id="browserThemeColor" />
+  <script>
+    // Aplicar la preferencia antes de pintar la interfaz (oscuro por defecto).
+    try { if (localStorage.getItem("laroca-theme") === "light") document.documentElement.dataset.theme = "light"; } catch (_) {}
+  </script>
   <meta name="description" content="Escuchá Radio La Roca Online, la emisora cristiana del Ministerio Catedral Roca a las Naciones. Música, mensajes y transmisión en vivo desde Ingeniero Huergo, Río Negro." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.la-rocaonline.com.ar/" />
@@ -32,7 +36,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=47" />
+  <link rel="stylesheet" href="./style.css?v=48" />
   <style>
     /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
     #messagesCloseBtn:hover, #messagesCloseBtn:active {
@@ -90,6 +94,11 @@
           </div>
         </div>
 
+        <div class="header-actions">
+          <button id="themeSwitch" class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Activar modo claro" title="Cambiar entre modo oscuro y claro">
+            <span class="theme-switch-icon" aria-hidden="true">☾</span>
+            <span class="theme-switch-thumb" aria-hidden="true"></span>
+          </button>
         <button
           id="powerBtn"
           class="icon-btn power"
@@ -103,6 +112,7 @@
             <path d="M7.4 5.5a9 9 0 1 0 9.2 0" />
           </svg>
         </button>
+        </div>
         <button id="installAppBtn" type="button" hidden
           aria-label="Instalar La Roca Online"
           title="Instalar La Roca Online">
@@ -967,6 +977,27 @@
     })();
   </script>
   <audio id="radioAudio" preload="none"></audio>
+  <script>
+    (() => {
+      const toggle = document.getElementById("themeSwitch");
+      const metaTheme = document.getElementById("browserThemeColor");
+      function setTheme(theme) {
+        const isLight = theme === "light";
+        document.documentElement.dataset.theme = isLight ? "light" : "dark";
+        toggle.setAttribute("aria-checked", String(isLight));
+        toggle.setAttribute("aria-label", isLight ? "Activar modo oscuro" : "Activar modo claro");
+        toggle.title = isLight ? "Cambiar a modo oscuro" : "Cambiar a modo claro";
+        toggle.querySelector(".theme-switch-icon").textContent = isLight ? "☀" : "☾";
+        metaTheme.content = isLight ? "#e9f2ff" : "#24477e";
+      }
+      setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+      toggle.addEventListener("click", () => {
+        const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+        setTheme(next);
+        try { localStorage.setItem("laroca-theme", next); } catch (_) {}
+      });
+    })();
+  </script>
 
   <script>
     window.__onGCastApiAvailable = function (isAvailable) {
