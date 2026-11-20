@@ -28,6 +28,7 @@ function cancelReconnect() {
 }
 
 function scheduleReconnect() {
+  if (window.laRocaMaintenanceBlocked) return;
   if (!poweredOn || !wantsLocalAudio || getCastSession() || reconnectTimer) return;
   const delay = RECONNECT_DELAYS[Math.min(reconnectAttempts, RECONNECT_DELAYS.length - 1)];
   reconnectAttempts++;
@@ -119,6 +120,7 @@ function showCastControl(available) {
 }
 
 async function playLocal() {
+  if (window.laRocaMaintenanceBlocked) return;
   if (!poweredOn) return;
   wantsLocalAudio = true;
   cancelReconnect();
@@ -167,6 +169,7 @@ async function syncCastVolume() {
 }
 
 async function loadStreamOnCast(session) {
+  if (window.laRocaMaintenanceBlocked) return;
   if (!window.chrome?.cast?.media || !session || !poweredOn) {
     return;
   }
@@ -201,6 +204,7 @@ async function loadStreamOnCast(session) {
 }
 
 async function togglePlayback() {
+  if (window.laRocaMaintenanceBlocked) return;
   if (!poweredOn) {
     setStatus("La radio está apagada");
     return;
@@ -305,6 +309,7 @@ muteBtn.addEventListener("click", () => {
 playBtn.addEventListener("click", togglePlayback);
 
 powerBtn.addEventListener("click", async () => {
+  if (window.laRocaMaintenanceBlocked) return;
   poweredOn = !poweredOn;
   document.body.classList.toggle("power-off", !poweredOn);
   powerBtn.setAttribute("aria-pressed", String(poweredOn));
@@ -332,6 +337,7 @@ powerBtn.addEventListener("click", async () => {
 });
 
 audio.addEventListener("playing", () => {
+  if (window.laRocaMaintenanceBlocked) { audio.pause(); return; }
   if (!getCastSession() && poweredOn) {
     reconnectAttempts = 0;
     cancelReconnect();
@@ -345,7 +351,7 @@ audio.addEventListener("stalled", setBuffering);
 audio.addEventListener("error", () => {
   console.error("MediaError:", audio.error);
 
-  if (!getCastSession() && poweredOn && wantsLocalAudio) {
+  if (!window.laRocaMaintenanceBlocked && !getCastSession() && poweredOn && wantsLocalAudio) {
     scheduleReconnect();
   }
 });
@@ -418,7 +424,7 @@ function initCast() {
           state === cast.framework.SessionState.SESSION_RESUMED
         ) {
           const session = getCastSession();
-          if (poweredOn && session) {
+          if (poweredOn && session && !window.laRocaMaintenanceBlocked) {
             await loadStreamOnCast(session);
           }
         }
@@ -703,3 +709,33 @@ powerBtn.addEventListener("click", () => setTimeout(refreshSpectrumAnimation, 0)
 if (typeof ResizeObserver !== "undefined" && spectrumCanvas) {
   new ResizeObserver(drawSpectrumFrame).observe(spectrumCanvas);
 }
+
+
+// Detener todas las reproducciones al activar mantenimiento, sin autoplay al regresar.
+window.laRocaStopForMaintenance = async function () {
+  poweredOn = false;
+  wantsLocalAudio = false;
+  cancelReconnect();
+  clearTimeout(bufferingTimer);
+  bufferingTimer = null;
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  const mediaSession = getCastSession()?.getMediaSession();
+  if (mediaSession) {
+    try { await mediaSession.stop(null); }
+    catch (error) { console.warn("No se pudo detener Chromecast:", error); }
+  }
+  isRemotePlaying = false;
+  document.body.classList.add("power-off");
+  powerBtn.setAttribute("aria-pressed", "false");
+  setPlayingUI(false, "Radio detenida por mantenimiento");
+};
+window.laRocaRestoreAfterMaintenance = function () {
+  audio.src = STREAM_URL;
+  poweredOn = false;
+  wantsLocalAudio = false;
+  document.body.classList.add("power-off");
+  powerBtn.setAttribute("aria-pressed", "false");
+  setPlayingUI(false, "Tocá encender para escuchar");
+};
