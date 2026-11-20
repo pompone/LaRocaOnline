@@ -36,7 +36,7 @@
   <link rel="icon" href="./icons/favicon.ico?v=11" sizes="any" />
   <link rel="icon" href="./icons/favicon-48.png?v=11" type="image/png" sizes="48x48" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=11" />
-  <link rel="stylesheet" href="./style.css?v=48" />
+  <link rel="stylesheet" href="./style.css?v=49" />
   <style>
     /* Refuerzo para el botón cerrar, incluso si la hoja externa quedó en caché. */
     #messagesCloseBtn:hover, #messagesCloseBtn:active {
@@ -981,6 +981,14 @@
     (() => {
       const toggle = document.getElementById("themeSwitch");
       const metaTheme = document.getElementById("browserThemeColor");
+      function syncThemeAvailability() {
+        const disabled = document.body.classList.contains("power-off") ||
+          document.body.classList.contains("maintenance-checking") ||
+          document.body.classList.contains("maintenance-active");
+        toggle.disabled = disabled;
+        if (disabled) toggle.title = "Encendé la radio para cambiar el tema";
+        else toggle.title = document.documentElement.dataset.theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro";
+      }
       function setTheme(theme) {
         const isLight = theme === "light";
         document.documentElement.dataset.theme = isLight ? "light" : "dark";
@@ -991,9 +999,13 @@
         metaTheme.content = isLight ? "#e9f2ff" : "#24477e";
       }
       setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+      syncThemeAvailability();
+      new MutationObserver(syncThemeAvailability).observe(document.body, { attributes: true, attributeFilter: ["class"] });
       toggle.addEventListener("click", () => {
+        if (toggle.disabled) return;
         const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
         setTheme(next);
+        syncThemeAvailability();
         try { localStorage.setItem("laroca-theme", next); } catch (_) {}
       });
     })();
