@@ -509,37 +509,69 @@ function weatherSymbol(code, isDay) {
   return "🌤️";
 }
 
+// Conservar última lectura válida ante cortes de red, sin inventar temperaturas.
+const WEATHER_CACHE_KEY = "laRocaLastWeather";
+const WEATHER_REFRESH_MS = 15 * 60 * 1000;
+const WEATHER_RETRY_MS = 60 * 1000;
+let weatherRetryTimer = null;
+
+function applyWeather(current, fromCache = false) {
+  const temp = Number(current.temperature_2m);
+  if (!Number.isFinite(temp)) throw new Error("Temperatura inválida");
+  weatherTemp.textContent = `${Math.round(temp)} °C`;
+  weatherIcon.textContent = weatherSymbol(Number(current.weather_code), Number(current.is_day) === 1);
+  weatherTemp.title = fromCache ? "Última temperatura disponible (sin actualizar)" : "Temperatura actual en Ing. Huergo";
+  weatherIcon.title = fromCache ? "Última condición disponible" : "Condición climática actual";
+}
+
+try {
+  const saved = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || "null");
+  if (saved && Number.isFinite(saved.timestamp) && Date.now() - saved.timestamp < 2 * 60 * 60 * 1000) {
+    applyWeather(saved.current, true);
+  }
+} catch (_) { /* Sin datos locales o almacenamiento restringido. */ }
+
 async function updateWeather() {
-  if (weatherLoading || Date.now() - weatherLastUpdated < 15 * 60 * 1000) return;
+  if (weatherLoading || Date.now() - weatherLastUpdated < WEATHER_REFRESH_MS) return;
   weatherLoading = true;
+  if (weatherRetryTimer) { clearTimeout(weatherRetryTimer); weatherRetryTimer = null; }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
   try {
-    const response = await fetch(WEATHER_URL, { cache: "no-store" });
+    const response = await fetch(WEATHER_URL, {
+      cache: "no-store", mode: "cors", signal: controller.signal
+    });
     if (!response.ok) throw new Error(`Clima HTTP ${response.status}`);
     const data = await response.json();
-    const current = data.current;
-    if (!current || !Number.isFinite(current.temperature_2m)) {
+    if (!data.current || !Number.isFinite(Number(data.current.temperature_2m))) {
       throw new Error("Datos de clima incompletos");
     }
-    weatherTemp.textContent = `${Math.round(current.temperature_2m)} °C`;
-    weatherIcon.textContent = weatherSymbol(current.weather_code, current.is_day === 1);
-    weatherIcon.title = "Condición climática actual";
+    applyWeather(data.current);
     weatherLastUpdated = Date.now();
+    try {
+      localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({
+        current: data.current, timestamp: weatherLastUpdated
+      }));
+    } catch (_) {}
   } catch (error) {
     console.warn("No se pudo cargar el clima:", error);
-    if (!weatherLastUpdated) {
-      weatherTemp.textContent = "-- °C";
-      weatherIcon.textContent = "🌤️";
+    if (weatherTemp.textContent.trim() === "-- °C") {
+      weatherTemp.title = "No se pudo consultar la temperatura. Se reintentará automáticamente.";
     }
+    // Ante una falla no esperar quince minutos: reintentar en un minuto.
+    weatherRetryTimer = setTimeout(updateWeather, WEATHER_RETRY_MS);
   } finally {
+    clearTimeout(timeout);
     weatherLoading = false;
   }
 }
 
 updateWeather();
-setInterval(updateWeather, 15 * 60 * 1000);
+setInterval(updateWeather, WEATHER_REFRESH_MS);
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) updateWeather();
 });
+window.addEventListener("online", updateWeather);
 
 
 // ===== Espectro real de La Roca Online: tres estilos, sin animación simulada =====
