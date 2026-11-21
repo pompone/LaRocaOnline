@@ -114,9 +114,15 @@ function showCastControl(available) {
   // Usamos un botón propio: el launcher nativo puede ocultarse por su cuenta.
   castButton.classList.add("hidden");
   castFallbackBtn.classList.toggle("hidden", !available);
-  castFallbackBtn.title = available
-    ? "Elegir dispositivo Chromecast"
-    : "Comprobar disponibilidad de Chromecast";
+  const isConnected = castContext?.getCastState() === cast.framework.CastState.CONNECTED
+    && !!getCastSession();
+  castFallbackBtn.classList.toggle("cast-connected", isConnected);
+  castFallbackBtn.setAttribute("aria-pressed", String(isConnected));
+  const label = isConnected
+    ? "Conectado a Chromecast"
+    : available ? "Elegir dispositivo Chromecast" : "Comprobar disponibilidad de Chromecast";
+  castFallbackBtn.title = label;
+  castFallbackBtn.setAttribute("aria-label", label);
 }
 
 async function playLocal() {
@@ -422,6 +428,8 @@ function initCast() {
       cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
       async (event) => {
         const state = event.sessionState;
+        // Reflejar conexión y desconexión en el botón de Cast.
+        refreshCastControl();
 
         if (
           state === cast.framework.SessionState.SESSION_STARTED ||
