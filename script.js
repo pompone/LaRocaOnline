@@ -114,8 +114,12 @@ function showCastControl(available) {
   // Usamos un botón propio: el launcher nativo puede ocultarse por su cuenta.
   castButton.classList.add("hidden");
   castFallbackBtn.classList.toggle("hidden", !available);
-  const isConnected = castContext?.getCastState() === cast.framework.CastState.CONNECTED
-    && !!getCastSession();
+  // Al iniciar, la API de Google Cast todavía puede no estar cargada.
+  const isConnected = Boolean(
+    castContext && window.cast?.framework &&
+    castContext.getCastState() === window.cast.framework.CastState.CONNECTED &&
+    getCastSession()
+  );
   castFallbackBtn.classList.toggle("cast-connected", isConnected);
   castFallbackBtn.setAttribute("aria-pressed", String(isConnected));
   const label = isConnected
