@@ -1522,3 +1522,34 @@ html[data-theme="light"] .donation-alias { color: #173b61; }
 html[data-theme="light"] .donation-bank { border-top-color: #bdd4ed; }
 html[data-theme="light"] .donation-feedback { color: #16633c; }
 /* Confirmaciones, imagen ampliada y controles de acciones mantienen contraste propio. */
+
+/* Modo claro: marcos azules más visibles sobre superficies claras. */
+html[data-theme="light"] .radio-card {
+  border-color: #6ea8df;
+}
+html[data-theme="light"] .display {
+  border-color: #4f8fd3;
+}
+html[data-theme="light"] .volume-panel {
+  border-color: #6ea8df;
+}
+html[data-theme="light"] .messages-panel,
+html[data-theme="light"] .donation-details {
+  border-color: #5f9fe0;
+}
+html[data-theme="light"] .messages-list,
+html[data-theme="light"] .messages-form input:not([type="file"]),
+html[data-theme="light"] .messages-form textarea {
+  border-color: #7aaee3;
+}
+html[data-theme="light"] .round-control,
+html[data-theme="light"] .messages-close,
+html[data-theme="light"] .donation-close {
+  border-color: #7aaee3;
+}
+@media (max-width: 600px) {
+  /* El diseño móvil no usa borde exterior; la separación la aporta el perfil interior. */
+  html[data-theme="light"] .radio-card {
+    box-shadow: inset 0 0 0 2px rgba(95, 159, 224, .65);
+  }
+}
