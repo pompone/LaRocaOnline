@@ -182,7 +182,11 @@ async function loadStreamOnCast(session) {
 
   const metadata = new chrome.cast.media.MusicTrackMediaMetadata();
   metadata.title = STATION_NAME;
-  metadata.artist = "Radio online";
+  metadata.artist = "Ministerio Catedral Roca a las Naciones";
+  // El receptor predeterminado decide cómo presentar la carátula.
+  metadata.images = [
+    new chrome.cast.Image("https://www.la-rocaonline.com.ar/icons/logo-la-roca.png")
+  ];
   mediaInfo.metadata = metadata;
 
   const request = new chrome.cast.media.LoadRequest(mediaInfo);
