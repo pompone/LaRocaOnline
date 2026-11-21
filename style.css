@@ -1581,3 +1581,23 @@ html[data-theme="light"] body.playing:not(.is-muted):not(.power-off) .sound-wave
 html[data-theme="light"] body.playing:not(.is-muted):not(.power-off) .music-note {
   animation-name: light-music-note-float;
 }
+
+
+/* Chromecast: resaltar únicamente cuando hay una sesión Cast conectada. */
+.cast-fallback.cast-connected {
+  color: #102e29;
+  background: #62dda2;
+  border-color: #c1ffe0;
+  box-shadow: 0 0 0 2px rgba(61, 220, 145, .16), 0 0 18px rgba(38, 220, 129, .5);
+}
+.cast-fallback.cast-connected:hover {
+  color: #102e29;
+  background: #7df0b5;
+}
+html[data-theme="light"] .cast-fallback.cast-connected {
+  color: #123f34;
+  background: #72e6ad;
+  border-color: #208e60;
+  box-shadow: 0 0 0 2px rgba(26, 152, 93, .16), 0 0 15px rgba(36, 169, 105, .28);
+}
+html[data-theme="light"] .cast-fallback.cast-connected:hover { background: #93f3c4; }
