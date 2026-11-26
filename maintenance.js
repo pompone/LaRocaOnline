@@ -10,7 +10,7 @@
   const signal = document.getElementById("signalText");
   let active = false;
   let sequence = 0;
-  window.laRocaMaintenanceBlocked = true; // No reproducir antes de consultar.
+  window.laRocaMaintenanceBlocked = false; // Permitir reproducción mientras se consulta el estado inicial.
   function requestState() {
     return new Promise((resolve, reject) => {
       const callback = "laRocaMaintenanceCb" + (++sequence);
